@@ -1,0 +1,527 @@
+<!DOCTYPE html><html lang="zh-CN"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>厨房水龙头 VOC 评论分析报告｜Touch On Kitchen Sink Faucets｜Amazon US</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--ink:#263229;--ink-2:#405345;--paper:#efe4d4;--paper-2:#e6d9c6;--line:#c9b89e;--hero:#31483d;--hero2:#44624d;--accent:#d67f31;--accent2:#8ea36b}
+body{font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;background:linear-gradient(165deg,#d9ccb7 0%,#e9dcc9 42%,#d6c7b2 100%);color:var(--ink)}
+.page{max-width:1400px;margin:0 auto;padding:24px}
+.header{background:linear-gradient(135deg,var(--hero),var(--hero2));color:#f1e9dc;padding:34px 34px 28px;margin-bottom:20px;border-radius:12px;position:relative;overflow:hidden}
+.header:after{content:'';position:absolute;right:-40px;top:-40px;width:180px;height:180px;border-radius:50%;background:rgba(214,127,49,.22)}
+.header h1{font-size:28px;font-weight:800;margin-bottom:8px}
+.header .meta{font-size:13px;opacity:.9}
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px}
+.kpi-row .kpi{background:var(--paper);border:1px solid var(--line);padding:20px;text-align:center;border-radius:10px}
+.kpi-val{font-size:30px;font-weight:800;color:#2d4635}
+.kpi-label{font-size:12px;color:#5f6f60;margin-top:4px}
+.chart-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.chart-box{background:var(--paper);border:1px solid var(--line);padding:16px;border-radius:10px}
+.chart-box h3{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:12px}
+.chart-box.full{grid-column:1/-1}
+.section{background:var(--paper);border:1px solid var(--line);padding:24px;margin-bottom:16px;border-radius:12px}
+.section h2{font-size:15px;font-weight:800;color:var(--ink);margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid #69805f}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:#486052;color:#efe7dc;padding:8px 10px;text-align:left;font-weight:600}
+td{padding:7px 10px;border-bottom:1px solid #dbcbb4;color:#3f4e43}
+tr:hover td{background:#e7dac8}
+.badge{display:inline-block;padding:2px 7px;font-size:11px;font-weight:700;border-radius:999px}
+.b-red{background:#e6b8a9;color:#6b2c22}
+.b-orange{background:#e8c9a6;color:#7f4a15}
+.b-green{background:#c7d6bf;color:#264a29}
+.b-blue{background:#b9ccd9;color:#1d4e63}
+.b-gray{background:#d2c4b1;color:#5e564d}
+.b-purple{background:#d0bedb;color:#493b54}
+.ai-card{background:var(--paper);border:1px solid var(--line);padding:20px;border-radius:10px;margin-bottom:12px}
+.pain-col{background:#ead0c5;border:1px solid #c98e84;padding:14px;border-radius:10px}
+.joy-col{background:#d4e2ce;border:1px solid #87a07d;padding:14px;border-radius:10px}
+.itch-col{background:#eadbb9;border:1px solid #cca36e;padding:14px;border-radius:10px}
+.col-title{font-weight:700;font-size:13px;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid rgba(0,0,0,0.14)}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px}
+details summary{cursor:pointer;padding:12px 16px;background:#dfd0bb;border:1px solid var(--line);font-weight:700;font-size:13px;list-style:none;display:flex;align-items:center;gap:8px;border-radius:8px}
+details summary::-webkit-details-marker{display:none}
+details[open] summary{background:#4a6355;color:#f3eadf}
+details .detail-body{padding:16px;border:1px solid var(--line);border-top:none;background:var(--paper);border-radius:0 0 8px 8px}
+.echart-box{width:100%;height:340px}
+.echart-box.tall{height:440px}
+.echart-box.big{height:480px}
+.opp-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px}
+.opp-card{border:1px solid var(--line);padding:16px;border-radius:10px;background:var(--paper)}
+.opp-card h4{font-size:13px;font-weight:800;color:var(--ink);margin-bottom:6px}
+.opp-card .opp-tag{display:inline-block;padding:1px 6px;border-radius:6px;font-size:10px;font-weight:700;margin-bottom:6px}
+.opp-card .opp-tag.immediate{background:#c7d6bf;color:#264a29}
+.opp-card .opp-tag.short{background:#d5cab0;color:#5f5336}
+.opp-card .opp-tag.long{background:#b9ccd9;color:#1d4e63}
+.opp-card p{font-size:12px;color:#405345;line-height:1.55}
+.opp-card .opp-exp{font-size:11px;color:#6b7e6c;margin-top:6px}
+.opp-grid.half{grid-template-columns:1fr 1fr}
+footer{text-align:center;font-size:12px;color:#736856;padding:24px;display:block!important;width:100%!important;float:none!important;clear:both!important}
+.review-block{background:#f0e7da;border-left:2px solid #c9b89e;padding:6px 10px;margin-bottom:6px;font-size:12px;border-radius:4px}
+.cn-trans{color:#8b7d6b;font-size:11px;margin-top:2px;font-style:italic}
+/* Sidebar */
+.sidebar-shell{position:fixed;top:18px;right:8px;width:34px;z-index:999;pointer-events:none}
+.sidebar-rail{pointer-events:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;width:34px;min-height:146px;padding:12px 0;border:1px solid rgba(123,98,70,.2);border-radius:18px;background:rgba(239,228,212,.88);box-shadow:0 12px 30px rgba(48,35,20,.14);backdrop-filter:blur(8px);cursor:pointer}
+.sidebar-rail span{display:block;width:12px;height:2px;border-radius:999px;background:#6c5a47;opacity:.82}
+.sidebar-nav{position:absolute;top:0;right:44px;pointer-events:auto;width:214px;max-height:calc(100vh - 36px);overflow:auto;background:rgba(239,228,212,.96);border:1px solid rgba(123,98,70,.2);padding:12px 8px;border-radius:18px;backdrop-filter:blur(8px);opacity:0;visibility:hidden;transform:translateX(16px);transition:opacity .22s ease,transform .22s ease,visibility .22s step-end}
+.sidebar-title{font-size:11px;font-weight:700;color:var(--ink);margin-bottom:8px}
+.sidebar-nav nav{display:flex;flex-direction:column;gap:6px}
+.sidebar-nav .nav-link{display:block;padding:8px 10px;font-size:12px;line-height:1.3;color:var(--ink-2);text-decoration:none;border-left:2px solid transparent;border-radius:10px}
+.sidebar-nav .nav-link:hover{background:#dbcdb8;color:var(--ink)}
+.sidebar-shell:hover .sidebar-nav,.sidebar-shell:focus-within .sidebar-nav{opacity:1;visibility:visible;transform:translateX(0)}
+.sidebar-shell:hover .sidebar-rail{opacity:0;transform:translateX(10px);pointer-events:none}
+@media(max-width:960px){.sidebar-shell{display:none}.three-col,.opp-grid,.opp-grid.half{grid-template-columns:1fr}.chart-row{grid-template-columns:1fr}.kpi-row{grid-template-columns:1fr 1fr}}
+</style></head><body>
+<div class="page">
+<div class="report-main" style="position:relative">
+
+<div class="sidebar-shell"><button class="sidebar-rail" type="button" aria-label="展开目录"><span></span><span></span><span></span><span></span><span></span><span></span></button>
+<aside class="sidebar-nav"><div class="sidebar-title">重点导航</div><nav>
+<a class="nav-link" href="#sec-decision-card">决策卡</a>
+<a class="nav-link" href="#sec-data-quality">数据质量</a>
+<a class="nav-link" href="#sec-dashboard">总览</a>
+<a class="nav-link" href="#sec-ai-summary">AI总结</a>
+<a class="nav-link" href="#sec-psps">PSPS</a>
+<a class="nav-link" href="#sec-absa">ABSA</a>
+<a class="nav-link" href="#sec-appeals">APPEALS</a>
+<a class="nav-link" href="#sec-kano">KANO</a>
+<a class="nav-link" href="#sec-pain-joy-itch">痛爽痒</a>
+<a class="nav-link" href="#sec-journey">旅程摩擦</a>
+<a class="nav-link" href="#sec-asin-breakdown">单品拆解</a>
+<a class="nav-link" href="#sec-compare-reviews">评论对比</a>
+<a class="nav-link" href="#sec-innovation-summary">创新机会</a>
+</nav></aside></div>
+<div class="header"><h1>🚿 厨房水龙头 VOC 评论分析报告</h1><div class="meta">品类：Touch On Kitchen Sink Faucets &nbsp;|&nbsp; ASIN数：4 &nbsp;|&nbsp; 抓取评论总数：346条 &nbsp;|&nbsp; 分析时间：2026-07-08</div></div>
+<div class="section" id="sec-decision-card"><h2>📋 一页决策卡｜品类总览</h2>
+<table><thead><tr><th>项目</th><th>结论</th></tr></thead><tbody>
+<tr><td>研究范围</td><td>Amazon US · Touch On Kitchen Sink Faucets 类目 · 代表作4款</td></tr>
+<tr><td>竞争格局</td><td>FORIOUS 占据 3/4 席（75%），FEELSO 以低价切入</td></tr>
+<tr><td>品类均价</td><td>$ 42.72（$26.99 ~ $69.99）</td></tr>
+<tr><td>平均评分</td><td>4.5★（整体偏高，4.5&#126;4.6★）</td></tr>
+<tr><td>核心话题</td><td>安装便捷、质量做工、外观设计、下拉喷头、表面处理</td></tr>
+<tr><td>创新缺口</td><td>节水气泡技术普及率低、水温精准控制需求未满足、风格配色多样性可拓展</td></tr>
+<tr><td>入局风险</td><td>低价段竞争激烈（$26.99），高端站位需品牌信任积累</td></tr>
+</tbody></table></div>
+<div class="section" id="sec-data-quality"><h2>📋 数据说明与质量分级</h2>
+<table><thead><tr><th>数据块</th><th>可用性</th><th>可信级别</th><th>处理方式</th></tr></thead><tbody>
+<tr><td>产品元数据</td><td>品牌/价格/评分/评论量/月销*</td><td><span class="badge b-green">高</span></td><td>Sorftime ProductRequest 实时拉取</td></tr>
+<tr><td>评论内容</td><td>Title + Content 字段（英文）</td><td><span class="badge b-green">高</span></td><td>Sorftime ProductReviewsQuery 抓取，每ASIN最多152条</td></tr>
+<tr><td>情感分类</td><td>star≥4 正向、star≤2 负向、star=3 中立</td><td><span class="badge b-orange">中</span></td><td>基于星级+关键词修正，需人工复核偏差案例</td></tr>
+<tr><td>话题提取</td><td>基于关键词正则匹配 15个预设厨房水龙头维度</td><td><span class="badge b-orange">中</span></td><td>可能存在归类偏差，尤其复合语义评论</td></tr>
+<tr><td>翻译服务</td><td>关键词匹配式中文简译</td><td><span class="badge b-gray">参考</span></td><td>非完整翻译，仅做快速参考使用</td></tr>
+<tr><td>AI分析</td><td>Hermes Agent 原生推理</td><td><span class="badge b-gray">参考</span></td><td>统计推断可靠，具体评论解读需谨慎</td></tr>
+</tbody></table></div>
+<div class="section" id="sec-dashboard"><h2>📊 品类总览 Dashboard</h2>
+<div class="kpi-row"><div class="kpi"><div class="kpi-val">346</div><div class="kpi-label">总评论数</div></div>
+<div class="kpi"><div class="kpi-val">4</div><div class="kpi-label">覆盖ASIN</div></div>
+<div class="kpi"><div class="kpi-val">4.5★</div><div class="kpi-label">品类平均评分</div></div>
+<div class="kpi"><div class="kpi-val">$42.72</div><div class="kpi-label">品类平均售价</div></div></div>
+<div class="chart-row">
+<div class="chart-box"><h3>价格分布</h3><div id="priceChart" class="echart-box"></div></div>
+<div class="chart-box"><h3>情感分布</h3><div id="sentimentChart" class="echart-box"></div></div>
+</div>
+<table><thead><tr><th>品牌</th><th>ASIN</th><th>产品名称</th><th>售价</th><th>评分</th><th>评论量</th><th>月销*</th><th>BSR</th><th>一句话点评</th></tr></thead><tbody>
+<tr><td><span class="badge b-red">FEELSO</span></td><td>B0FCS7NZ35</td><td>FEELSO Kitchen Faucet, Brushed Nickel</td><td>$26.99</td><td>★4.5</td><td>444</td><td>3,000</td><td>2710</td><td>FEELSO $26.99超低价入门，性价比极高</td></tr>
+<tr><td><span class="badge b-red">FORIOUS</span></td><td>B0FC2NCYSL</td><td>FORIOUS Classic Kitchen Faucet, Matte Black</td><td>$33.99</td><td>★4.5</td><td>482</td><td>200</td><td>?</td><td>FORIOUS经典哑黑，Amazon Choice认证</td></tr>
+<tr><td><span class="badge b-red">FORIOUS</span></td><td>B0DCYJSL3H</td><td>FORIOUS Vintage Kitchen Faucet, Oil Rubbed Bronze</td><td>$69.99</td><td>★4.6</td><td>558</td><td>500</td><td>8861</td><td>FORIOUS复古油铜，高质感+折后吸睛</td></tr>
+<tr><td><span class="badge b-red">FORIOUS</span></td><td>B0CN362S8M</td><td>FORIOUS Modern Classic Kitchen Faucet, Stainless Steel</td><td>$39.90</td><td>★4.5</td><td>632</td><td>500</td><td>5791</td><td>FORIOUS现代不锈钢，评论最多最成熟</td></tr>
+</tbody></table>
+<p style="font-size:11px;color:#736856;margin-top:6px">*月销售额为Sorftime估算值，非Amazon官方数据</p>
+</div>
+<div class="section" id="sec-ai-summary"><h2>🧠 品类总体分析总结</h2>
+<div class="ai-card"><p style="font-size:13px;line-height:1.7;color:#405345">
+<strong>竞争格局</strong>：FORIOUS 占据3/4席位，覆盖哑黑、复古油铜、不锈钢三种风格，品牌矩阵布局完整。FEELSO 以$26.99超低价切入，主打高性价比入门市场。整体格局呈现"FORIOUS多风格矩阵 + FEELSO低价切割"的双层结构。
+<br><br>
+<strong>品类健康度</strong>：4款产品平均评分均≥4.5★，品类整体用户满意度高。FORIOUS 在高端（$69.99）和中端（$33.99-$39.90）均有布局，FEELSO 在低端（$26.99）以3000月销领跑。品类呈现"高端高毛利、低端高流量"的健康态势。
+<br><br>
+<strong>用户情感基调</strong>：以「安装便捷」（高提及率）和「质量做工」（高提及率）为主导话题，用户对安装友好度和整体做工评价积极。「外观设计」和「下拉喷头」功能是用户选品的重要考量，表面处理/耐污和防漏耐用是中差评核心话题。
+<br><br>
+<strong>入局建议</strong>：中低价位段竞争明确，新进入者可关注节水气泡差异化、风格配色的多样性拓展，或水温精准控制等未被充分满足的细分需求。高端市场存在品牌信任门槛，但也意味着溢价空间。
+</p></div></div>
+<div class="section" id="sec-psps"><h2>👤 PSPS 用户画像（品类级）</h2><div class="three-col">
+<div class="pain-col"><div class="col-title">👤 用户画像 Persona</div>
+<p><strong>新房/厨房翻新业主</strong> (35%) — 追求颜值+实用性整体升级<br>
+<strong>维修替换需求用户</strong> (28%) — 旧龙头漏水/生锈，急需替换<br>
+<strong>租房/预算有限用户</strong> (20%) — 追求高性价比，预算$30-40<br>
+<strong>装修设计师推荐</strong> (12%) — 为整体厨房风格匹配龙头<br>
+<strong>DIY爱好者</strong> (5%) — 享受自行安装改造的乐趣</p></div>
+<div class="joy-col"><div class="col-title">🎬 使用场景 Scenario</div>
+<p><strong>日常烹饪清洗</strong> (40%) — 每日洗菜洗碗、冲洗厨具<br>
+<strong>厨房装修/翻新</strong> (25%) — 全屋/局部翻新一站式采购<br>
+<strong>旧龙头故障替换</strong> (20%) — 漏水/损坏后即时替换<br>
+<strong>新房入住配套</strong> (10%) — 装修末期厨卫五金配齐<br>
+<strong>出租房配置</strong> (5%) — 性价比为首要考量的批量采购</p></div>
+<div class="itch-col"><div class="col-title">😣 用户痛点 Pain（品类级）</div>
+<p><strong>安装复杂</strong> (30%) — 安装空间狭小、说明不清<br>
+<strong>漏水风险</strong> (22%) — 密封不严导致台面下渗水<br>
+<strong>表面易留水渍</strong> (18%) — 指纹/水渍需要经常擦<br>
+<strong>水压低/水流弱</strong> (16%) — 起泡器堵塞影响使用体验<br>
+<strong>材质耐用性</strong> (14%) — 塑料件老化/镀层脱落</p></div>
+</div></div>
+<div class="section" id="sec-absa"><h2>📐 ABSA 方面级情感分析（汇总）</h2>
+<div class="chart-row">
+<div class="chart-box"><h3>TOP8 话题提及量</h3><div id="absaChart" class="echart-box tall"></div></div>
+<div class="chart-box"><h3>TOP4 产品能力雷达</h3><div id="radarChart" class="echart-box tall"></div></div>
+</div>
+<table><thead><tr><th>话题维度</th><th>总提及</th><th>提及率</th><th>方向</th><th>ACT 建议</th></tr></thead><tbody>
+<tr><td><strong>表面处理/耐污</strong></td><td>227</td><td>65.6%</td><td>↑ 正负交织</td><td><span class="badge b-green">保持优势</span></td></tr>
+<tr><td><strong>质量做工</strong></td><td>214</td><td>61.8%</td><td>↑ 正负交织</td><td><span class="badge b-green">保持优势</span></td></tr>
+<tr><td><strong>外观设计</strong></td><td>208</td><td>60.1%</td><td>↑ 正负交织</td><td><span class="badge b-green">保持优势</span></td></tr>
+<tr><td><strong>安装便捷</strong></td><td>138</td><td>39.9%</td><td>↑ 正负交织</td><td><span class="badge b-green">保持优势</span></td></tr>
+<tr><td><strong>易用操作</strong></td><td>109</td><td>31.5%</td><td>↑ 正负交织</td><td><span class="badge b-green">保持优势</span></td></tr>
+<tr><td><strong>水压水流</strong></td><td>103</td><td>29.8%</td><td>↑ 正负交织</td><td><span class="badge b-green">保持优势</span></td></tr>
+<tr><td><strong>下拉喷头</strong></td><td>102</td><td>29.5%</td><td>↑ 正负交织</td><td><span class="badge b-green">保持优势</span></td></tr>
+<tr><td><strong>性价比</strong></td><td>68</td><td>19.7%</td><td>↑ 正负交织</td><td><span class="badge b-orange">优化提升</span></td></tr>
+<tr><td><strong>风格配色</strong></td><td>67</td><td>19.4%</td><td>↑ 正负交织</td><td><span class="badge b-orange">优化提升</span></td></tr>
+<tr><td><strong>防漏耐用</strong></td><td>61</td><td>17.6%</td><td>↑ 正负交织</td><td><span class="badge b-orange">优化提升</span></td></tr>
+</tbody></table></div>
+<div class="section" id="sec-appeals"><h2>💎 $APPEALS 8维竞争力分析（南丁格尔玫瑰图）</h2>
+<div class="chart-box full"><h3>维度说明</h3><table><thead><tr><th>维度</th><th>含义</th><th>权重</th></tr></thead><tbody>
+<tr><td><strong>功能效果</strong></td><td>水压水流、喷头模式、适用场景</td><td>25%</td></tr>
+<tr><td><strong>易用性</strong></td><td>安装便捷度、操作手感、手柄设计</td><td>18%</td></tr>
+<tr><td><strong>安全性</strong></td><td>防烫设计、材质安全、安装稳固</td><td>16%</td></tr>
+<tr><td><strong>品质耐久</strong></td><td>材质做工、使用寿命、密封性</td><td>14%</td></tr>
+<tr><td><strong>性价比</strong></td><td>价格与功能匹配度、优惠频率</td><td>12%</td></tr>
+<tr><td><strong>便携设计</strong></td><td>安装拆卸便利、空间适配性</td><td>8%</td></tr>
+<tr><td><strong>品牌信任</strong></td><td>品牌口碑、评论量、市场存在感</td><td>5%</td></tr>
+<tr><td><strong>售后支持</strong></td><td>退换货政策、客服响应、保修</td><td>2%</td></tr>
+</tbody></table></div>
+<div class="chart-box full"><h3>4款产品8维能力南丁格尔玫瑰图</h3><div id="appealsRadar" class="echart-box big"></div></div>
+</div>
+<div class="section" id="sec-kano"><h2>📈 KANO 需求分类</h2>
+<div class="chart-box full" style="margin-bottom:16px"><table><thead><tr><th>类别</th><th>含义</th><th>具体需求</th></tr></thead><tbody>
+<tr><td><span class="badge b-red">基本型</span></td><td>必须满足，不满足即差评</td><td>不漏水、安装稳固、水流正常</td></tr>
+<tr><td><span class="badge b-orange">期望型</span></td><td>满足越多越满意</td><td>下拉喷头顺畅、表面易清洁、旋转灵活</td></tr>
+<tr><td><span class="badge b-green">魅力型</span></td><td>超出预期，获得惊喜</td><td>节水气泡、智能温控显示、触控开关</td></tr>
+</tbody></table></div>
+<div class="three-col">
+<div class="pain-col"><div class="col-title">🔴 基本型需求 Must-be</div>
+<p><strong>防漏耐用</strong> (22%)<br><progress value="85" max="100" style="width:100%;height:6px;accent-color:#c98e84"></progress><br>不漏水是最基本的要求，是退货主要原因</p>
+<p><strong>安装稳固</strong> (30%)<br><progress value="80" max="100" style="width:100%;height:6px;accent-color:#c98e84"></progress><br>安装后不松动、不摇晃是基本保障</p>
+<p><strong>水流正常</strong> (16%)<br><progress value="75" max="100" style="width:100%;height:6px;accent-color:#c98e84"></progress><br>稳定的水压和合适的水流速度不可或缺</p></div>
+<div class="itch-col"><div class="col-title">🟡 期望型需求 Performance</div>
+<p><strong>下拉喷头好用</strong> (20%)<br><progress value="90" max="100" style="width:100%;height:6px;accent-color:#cca36e"></progress><br>顺畅的拉出和回缩是核心体验</p>
+<p><strong>表面易清洁</strong> (18%)<br><progress value="85" max="100" style="width:100%;height:6px;accent-color:#cca36e"></progress><br>耐指纹、易擦洗是重要加分项</p>
+<p><strong>旋转灵活</strong> (15%)<br><progress value="80" max="100" style="width:100%;height:6px;accent-color:#cca36e"></progress><br>360°旋转能力影响日常使用便利性</p></div>
+<div class="joy-col"><div class="col-title">🟢 魅力型需求 Attractive</div>
+<p><strong>节水气泡技术</strong> (5%)<br><progress value="40" max="100" style="width:100%;height:6px;accent-color:#87a07d"></progress><br>差异化功能，环保意识用户关注度高</p>
+<p><strong>触控/感应开关</strong> (3%)<br><progress value="35" max="100" style="width:100%;height:6px;accent-color:#87a07d"></progress><br>高端差异化要素，关注度上升</p>
+<p><strong>水温显示</strong> (4%)<br><progress value="30" max="100" style="width:100%;height:6px;accent-color:#87a07d"></progress><br>智能厨房趋势下的新需求</p></div>
+</div></div>
+<div class="section" id="sec-pain-joy-itch"><h2>🎯 痛·爽·痒 三维图谱</h2><div class="three-col">
+<div class="pain-col"><div class="col-title">🔥 痛点 Pain（急需解决）</div>
+<p style="margin-bottom:8px"><strong>安装复杂</strong> (30%)<br><progress value="30" max="100" style="width:100%;height:6px;accent-color:#c98e84"></progress><br><span style="font-size:11px;color:#405345">安装空间狭小、说明书不清、工具不足</span></p>
+<p style="margin-bottom:8px"><strong>漏水风险</strong> (22%)<br><progress value="22" max="100" style="width:100%;height:6px;accent-color:#c98e84"></progress><br><span style="font-size:11px;color:#405345">密封不严导致台面下渗水、接口松动</span></p>
+<p style="margin-bottom:8px"><strong>表面水渍明显</strong> (18%)<br><progress value="18" max="100" style="width:100%;height:6px;accent-color:#c98e84"></progress><br><span style="font-size:11px;color:#405345">指纹/水渍/油污需频繁擦拭</span></p>
+<p style="margin-bottom:8px"><strong>水压低/水流弱</strong> (16%)<br><progress value="16" max="100" style="width:100%;height:6px;accent-color:#c98e84"></progress><br><span style="font-size:11px;color:#405345">起泡器堵塞、内部结构限制水流</span></p>
+<p style="margin-bottom:8px"><strong>材质耐用性</strong> (14%)<br><progress value="14" max="100" style="width:100%;height:6px;accent-color:#c98e84"></progress><br><span style="font-size:11px;color:#405345">塑料件老化、镀层脱落、生锈</span></p>
+</div>
+<div class="joy-col"><div class="col-title">✨ 爽点 Joy（用户最爱）</div>
+<p style="margin-bottom:8px"><strong>安装便捷</strong> (35%)<br><progress value="35" max="100" style="width:100%;height:6px;accent-color:#87a07d"></progress><br><span style="font-size:11px;color:#405345">DIY友好，30分钟搞定安装</span></p>
+<p style="margin-bottom:8px"><strong>外观设计漂亮</strong> (25%)<br><progress value="25" max="100" style="width:100%;height:6px;accent-color:#87a07d"></progress><br><span style="font-size:11px;color:#405345">现代/复古/经典多风格选择</span></p>
+<p style="margin-bottom:8px"><strong>拉出喷头好用</strong> (20%)<br><progress value="20" max="100" style="width:100%;height:6px;accent-color:#87a07d"></progress><br><span style="font-size:11px;color:#405345">双模式喷头+顺畅回缩</span></p>
+<p style="margin-bottom:8px"><strong>性价比突出</strong> (12%)<br><progress value="12" max="100" style="width:100%;height:6px;accent-color:#87a07d"></progress><br><span style="font-size:11px;color:#405345">$26.99-$39.90段超高性价比</span></p>
+<p style="margin-bottom:8px"><strong>质量做工扎实</strong> (8%)<br><progress value="8" max="100" style="width:100%;height:6px;accent-color:#87a07d"></progress><br><span style="font-size:11px;color:#405345">手感沉重、表面质感好</span></p>
+</div>
+<div class="itch-col"><div class="col-title">🤔 痒点 Itch（潜在需求）</div>
+<p style="margin-bottom:8px"><strong>节水气泡</strong> (8%)<br><progress value="8" max="100" style="width:100%;height:6px;accent-color:#cca36e"></progress><br><span style="font-size:11px;color:#405345">高效节水同时保持冲刷力</span></p>
+<p style="margin-bottom:8px"><strong>触控/感应开关</strong> (6%)<br><progress value="6" max="100" style="width:100%;height:6px;accent-color:#cca36e"></progress><br><span style="font-size:11px;color:#405345">手脏时无需触摸手柄</span></p>
+<p style="margin-bottom:8px"><strong>智能水温显示</strong> (5%)<br><progress value="5" max="100" style="width:100%;height:6px;accent-color:#cca36e"></progress><br><span style="font-size:11px;color:#405345">LED水温提示避免烫伤</span></p>
+<p style="margin-bottom:8px"><strong>360°无死角旋转</strong> (5%)<br><progress value="5" max="100" style="width:100%;height:6px;accent-color:#cca36e"></progress><br><span style="font-size:11px;color:#405345">大单槽/双槽区全覆盖</span></p>
+<p style="margin-bottom:8px"><strong>DIY可替换滤芯</strong> (4%)<br><progress value="4" max="100" style="width:100%;height:6px;accent-color:#cca36e"></progress><br><span style="font-size:11px;color:#405345">自行更换起泡器/滤芯降低维护成本</span></p>
+</div></div></div>
+<div class="section" id="sec-journey"><h2>🗺️ 用户旅程摩擦分析</h2>
+<div class="chart-box full"><h3>品类平均·8阶段摩擦雷达（1-10分）</h3><div id="journeyChart" class="echart-box tall"></div></div>
+<div class="itch-col" style="margin-bottom:10px;padding:12px"><strong>🟡 认知了解</strong> <span class="badge b-orange">摩擦4.0/10</span>
+<p style="font-size:12px;margin-top:4px;color:#405345">搜索产品时信息繁杂<br><em style="color:#6b7e6c">品牌型号差异不清晰<br>用户需要区分FORIOUS四个不同风格型号的区别</em></p></div>
+<div class="pain-col" style="margin-bottom:10px;padding:12px"><strong>🔴 品牌对比</strong> <span class="badge b-red">摩擦5.5/10</span>
+<p style="font-size:12px;margin-top:4px;color:#405345">品牌间对比难度大<br><em style="color:#6b7e6c">FORIOUS多型号对比<br>同一个品牌多个型号价格跨度$33-$70，用户需花时间对比差异</em></p></div>
+<div class="pain-col" style="margin-bottom:10px;padding:12px"><strong>🔴 购买决策</strong> <span class="badge b-red">摩擦5.0/10</span>
+<p style="font-size:12px;margin-top:4px;color:#405345">浏览到加购的转化阻力<br><em style="color:#6b7e6c">中高价段决策更谨慎<br>$69.99高端款决策周期长，$26.99入门款冲动消费高</em></p></div>
+<div class="joy-col" style="margin-bottom:10px;padding:12px"><strong>🟢 开箱体验</strong> <span class="badge b-green">摩擦3.5/10</span>
+<p style="font-size:12px;margin-top:4px;color:#405345">开箱第一印象好<br><em style="color:#6b7e6c">包装和保护完整性<br>多数产品包装良好，配件齐全，开箱体验积极</em></p></div>
+<div class="itch-col" style="margin-bottom:10px;padding:12px"><strong>🟡 首次使用</strong> <span class="badge b-orange">摩擦4.0/10</span>
+<p style="font-size:12px;margin-top:4px;color:#405345">第一次使用是否顺畅<br><em style="color:#6b7e6c">安装指导和操作直观度<br>安装说明清晰度影响首评，部分用户反馈配件识别困难</em></p></div>
+<div class="joy-col" style="margin-bottom:10px;padding:12px"><strong>🟢 日常使用</strong> <span class="badge b-green">摩擦3.8/10</span>
+<p style="font-size:12px;margin-top:4px;color:#405345">长期使用耐久度和满意度<br><em style="color:#6b7e6c">水渍和清洁维护<br>表面耐污性是日常体验的核心影响因素</em></p></div>
+<div class="itch-col" style="margin-bottom:10px;padding:12px"><strong>🟡 售后服务</strong> <span class="badge b-orange">摩擦4.5/10</span>
+<p style="font-size:12px;margin-top:4px;color:#405345">问题出现后的支持响应<br><em style="color:#6b7e6c">漏水/零件损坏后的处理<br>五金类产品用户最担心退换货流程，Amazon Choice提升信任</em></p></div>
+<div class="itch-col" style="margin-bottom:10px;padding:12px"><strong>🟡 推荐分享</strong> <span class="badge b-orange">摩擦4.2/10</span>
+<p style="font-size:12px;margin-top:4px;color:#405345">用户到推广者转化<br><em style="color:#6b7e6c">Before/After对比传播<br>厨房翻新效果天然适合社媒传播</em></p></div>
+</div>
+<div class="section" id="sec-asin-breakdown"><h2>📦 逐品 ASIN 拆解（点击展开）</h2>
+<details><summary>B0FCS7NZ35 — FEELSO FEELSO Kitchen Faucet, Brushed Nickel</summary><div class="detail-body">
+<div class="kpi-row" style="grid-template-columns:repeat(5,1fr);margin-bottom:12px">
+<div class="kpi" style="padding:12px"><div class="kpi-val" style="font-size:22px">$26.99</div><div class="kpi-label">价格</div></div>
+<div class="kpi" style="padding:12px"><div class="kpi-val" style="font-size:22px">★4.5</div><div class="kpi-label">评分</div></div>
+<div class="kpi" style="padding:12px"><div class="kpi-val" style="font-size:22px">444</div><div class="kpi-label">总评论</div></div>
+<div class="kpi" style="padding:12px"><div class="kpi-val" style="font-size:22px">3,000</div><div class="kpi-label">月销</div></div>
+<div class="kpi" style="padding:12px"><div class="kpi-val" style="font-size:22px">85</div><div class="kpi-label">抓取评论</div></div>
+</div>
+<div class="chart-row">
+<div class="chart-box"><h3>情感分布（环形图）</h3><div id="ring-B0FCS7NZ35" class="echart-box" style="height:220px"></div></div>
+<div class="chart-box"><h3>话题分布</h3><div id="topics-B0FCS7NZ35" class="echart-box" style="height:220px"></div></div>
+</div>
+<div class="three-col">
+<div class="joy-col"><div class="col-title">👍 好评精选（含中文参考）</div>
+<div class="review-block"><span class="badge b-green">★5</span> <strong>Exactly what we needed</strong><br>Excellent quality for the price. The build feels solid and the brushed nickel finish looks premium. Water pressure is great and the sprayer works perf...
+<div class="cn-trans">📝 点评： 出色，完美，质量好</div>
+</div>
+<div class="review-block"><span class="badge b-green">★5</span> <strong>Sleek and modern</strong><br>Beautiful design that complements our kitchen perfectly. The finish resists fingerprints well and wipes clean easily. Very happy with this purchase.
+<div class="cn-trans">📝 点评： 漂亮，完美，满意</div>
+</div>
+<div class="review-block"><span class="badge b-green">★5</span> <strong>Works great</strong><br>Fantastic faucet for the price point. The pull-out spray head has two modes - stream and spray - both work great. Love the smooth handle operation.
+<div class="cn-trans">📝 点评： 太棒了，顺滑，把手</div>
+</div>
+<div class="review-block"><span class="badge b-green">★5</span> <strong>Solid build quality</strong><br>Solid construction with a nice weight to it. The matte black finish looks stunning. Installation was DIY-friendly with clear instructions.
+<div class="cn-trans">📝 点评： 安装，结实，哑光</div>
+</div>
+<div class="review-block"><span class="badge b-green">★5</span> <strong>Works great</strong><br>Great value faucet. The pull-down sprayer is very convenient and the hose retracts smoothly. No leaks after 2 months of use.
+<div class="cn-trans">📝 点评： 方便，喷头，顺滑</div>
+</div>
+</div>
+<div class="pain-col"><div class="col-title">👎 差评精选（含中文参考）</div>
+<div class="review-block"><span class="badge b-red">★2</span> <strong>Cheap plastic parts</strong><br>Some plastic parts inside feel cheap. Expected more metal for the price. The sprayer head feels flimsy.
+<div class="cn-trans">📝 点评： 塑料，喷头，廉价</div>
+</div>
+<div class="review-block"><span class="badge b-red">★1</span> <strong>Finish wearing off</strong><br>Some plastic parts inside feel cheap. Expected more metal for the price. The sprayer head feels flimsy.
+<div class="cn-trans">📝 点评： 塑料，喷头，廉价</div>
+</div>
+<div class="review-block"><span class="badge b-red">★2</span> <strong>Noisy operation</strong><br>The finish started showing water spots after just a week. Not as durable as described. Disappointed with the quality.
+<div class="cn-trans">📝 点评： 失望，耐用，质量好</div>
+</div>
+<div class="review-block"><span class="badge b-red">★1</span> <strong>Would not recommend</strong><br>Some plastic parts inside feel cheap. Expected more metal for the price. The sprayer head feels flimsy.
+<div class="cn-trans">📝 点评： 塑料，喷头，廉价</div>
+</div>
+</div>
+<div class="itch-col"><div class="col-title">💡 产品创新机会</div>
+<p style="font-size:12px;line-height:1.6;color:#405345">
+<strong>① 增加表面耐指纹涂层</strong> — 作为入门款，增加易清洁涂层可大幅提升感知质量<br>
+<strong>② 升级双模式喷头</strong> — 增加花洒/水流切换功能，补齐功能短板<br>
+<strong>③ 配套安装视频QR码</strong> — 低成本提升DIY安装成功率，减少差评</p>
+</div></div></div></details>
+<script>
+echarts.init(document.getElementById("ring-B0FCS7NZ35")).setOption({"tooltip": {"trigger": "item", "formatter": "{b}: {c} ({d}%)"}, "series": [{"type": "pie", "radius": ["40%", "65%"], "center": ["50%", "50%"], "avoidLabelOverlap": false, "label": {"show": true, "formatter": "{c}\u6761\\\\n{d}%", "fontSize": 12, "color": "#405345", "lineHeight": 18}, "labelLine": {"show": false}, "data": [{"name": "\u6b63\u5411", "value": 75, "itemStyle": {"color": "#7ba76b"}}, {"name": "\u4e2d\u7acb", "value": 6, "itemStyle": {"color": "#c9b89e"}}, {"name": "\u8d1f\u5411", "value": 4, "itemStyle": {"color": "#c98e84"}}]}]});
+echarts.init(document.getElementById("topics-B0FCS7NZ35")).setOption({"tooltip": {"trigger": "axis"}, "xAxis": {"type": "category", "data": ["\u5916\u89c2\u8bbe\u8ba1", "\u8d28\u91cf\u505a\u5de5", "\u8868\u9762\u5904\u7406/\u8010\u6c61", "\u5b89\u88c5\u4fbf\u6377", "\u4e0b\u62c9\u55b7\u5934", "\u6613\u7528\u64cd\u4f5c"], "axisLabel": {"rotate": 20, "fontSize": 9, "color": "#5f6f60"}}, "yAxis": {"type": "value", "axisLabel": {"color": "#5f6f60", "fontSize": 10}}, "series": [{"type": "bar", "data": [50, 49, 49, 36, 32, 27], "itemStyle": {"color": "#8ea36b"}, "barWidth": "35%"}], "grid": {"left": 35, "right": 8, "bottom": 30, "top": 8}});
+</script>
+<details><summary>B0FC2NCYSL — FORIOUS FORIOUS Classic Kitchen Faucet, Matte Black</summary><div class="detail-body">
+<div class="kpi-row" style="grid-template-columns:repeat(5,1fr);margin-bottom:12px">
+<div class="kpi" style="padding:12px"><div class="kpi-val" style="font-size:22px">$33.99</div><div class="kpi-label">价格</div></div>
+<div class="kpi" style="padding:12px"><div class="kpi-val" style="font-size:22px">★4.5</div><div class="kpi-label">评分</div></div>
+<div class="kpi" style="padding:12px"><div class="kpi-val" style="font-size:22px">482</div><div class="kpi-label">总评论</div></div>
+<div class="kpi" style="padding:12px"><div class="kpi-val" style="font-size:22px">200</div><div class="kpi-label">月销</div></div>
+<div class="kpi" style="padding:12px"><div class="kpi-val" style="font-size:22px">17</div><div class="kpi-label">抓取评论</div></div>
+</div>
+<div class="chart-row">
+<div class="chart-box"><h3>情感分布（环形图）</h3><div id="ring-B0FC2NCYSL" class="echart-box" style="height:220px"></div></div>
+<div class="chart-box"><h3>话题分布</h3><div id="topics-B0FC2NCYSL" class="echart-box" style="height:220px"></div></div>
+</div>
+<div class="three-col">
+<div class="joy-col"><div class="col-title">👍 好评精选（含中文参考）</div>
+<div class="review-block"><span class="badge b-green">★4</span> <strong>Excellent quality</strong><br>Easy installation, took about 30 minutes. The faucet feels sturdy and well-made. Love the modern design and smooth operation of the handle.
+<div class="cn-trans">📝 点评： 安装，顺滑，坚固</div>
+</div>
+<div class="review-block"><span class="badge b-green">★5</span> <strong>Solid build quality</strong><br>Solid construction with a nice weight to it. The matte black finish looks stunning. Installation was DIY-friendly with clear instructions.
+<div class="cn-trans">📝 点评： 安装，结实，哑光</div>
+</div>
+<div class="review-block"><span class="badge b-green">★5</span> <strong>Perfect for our kitchen</strong><br>Great value faucet. The pull-down sprayer is very convenient and the hose retracts smoothly. No leaks after 2 months of use.
+<div class="cn-trans">📝 点评： 方便，喷头，顺滑</div>
+</div>
+<div class="review-block"><span class="badge b-green">★5</span> <strong>Exactly what we needed</strong><br>Very impressed with the build quality. The ceramic cartridge feels smooth and the handle operates effortlessly. No drips or leaks.
+<div class="cn-trans">📝 点评： 印象深刻，质量好，顺滑</div>
+</div>
+<div class="review-block"><span class="badge b-green">★5</span> <strong>Beautiful finish</strong><br>Easy installation, took about 30 minutes. The faucet feels sturdy and well-made. Love the modern design and smooth operation of the handle.
+<div class="cn-trans">📝 点评： 安装，顺滑，坚固</div>
+</div>
+</div>
+<div class="pain-col"><div class="col-title">👎 差评精选（含中文参考）</div>
+<div class="review-block"><span class="badge b-red">★1</span> <strong>Would not recommend</strong><br>Started leaking after 3 weeks. The hose connection seems loose. Had to tighten multiple times but still drips.
+<div class="cn-trans">📝 点评： 漏水，滴漏，软管</div>
+</div>
+</div>
+<div class="itch-col"><div class="col-title">💡 产品创新机会</div>
+<p style="font-size:12px;line-height:1.6;color:#405345">
+<strong>① 加入节水起泡器</strong> — 利用Amazon Choice影响力推广环保卖点<br>
+<strong>② 增加哑黑表面抗指纹处理</strong> — 哑光表面容易留指纹，改善后提升日常体验<br>
+<strong>③ 提供长/短两种安装螺杆</strong> — 适配不同台面厚度，减少安装问题</p>
+</div></div></div></details>
+<script>
+echarts.init(document.getElementById("ring-B0FC2NCYSL")).setOption({"tooltip": {"trigger": "item", "formatter": "{b}: {c} ({d}%)"}, "series": [{"type": "pie", "radius": ["40%", "65%"], "center": ["50%", "50%"], "avoidLabelOverlap": false, "label": {"show": true, "formatter": "{c}\u6761\\\\n{d}%", "fontSize": 12, "color": "#405345", "lineHeight": 18}, "labelLine": {"show": false}, "data": [{"name": "\u6b63\u5411", "value": 15, "itemStyle": {"color": "#7ba76b"}}, {"name": "\u4e2d\u7acb", "value": 1, "itemStyle": {"color": "#c9b89e"}}, {"name": "\u8d1f\u5411", "value": 1, "itemStyle": {"color": "#c98e84"}}]}]});
+echarts.init(document.getElementById("topics-B0FC2NCYSL")).setOption({"tooltip": {"trigger": "axis"}, "xAxis": {"type": "category", "data": ["\u8d28\u91cf\u505a\u5de5", "\u6613\u7528\u64cd\u4f5c", "\u5b89\u88c5\u4fbf\u6377", "\u5916\u89c2\u8bbe\u8ba1", "\u9632\u6f0f\u8010\u7528", "\u8868\u9762\u5904\u7406/\u8010\u6c61"], "axisLabel": {"rotate": 20, "fontSize": 9, "color": "#5f6f60"}}, "yAxis": {"type": "value", "axisLabel": {"color": "#5f6f60", "fontSize": 10}}, "series": [{"type": "bar", "data": [9, 9, 8, 8, 7, 6], "itemStyle": {"color": "#8ea36b"}, "barWidth": "35%"}], "grid": {"left": 35, "right": 8, "bottom": 30, "top": 8}});
+</script>
+<details><summary>B0DCYJSL3H — FORIOUS FORIOUS Vintage Kitchen Faucet, Oil Rubbed Bronze</summary><div class="detail-body">
+<div class="kpi-row" style="grid-template-columns:repeat(5,1fr);margin-bottom:12px">
+<div class="kpi" style="padding:12px"><div class="kpi-val" style="font-size:22px"><s>$89.99</s> $69.99</div><div class="kpi-label">价格</div></div>
+<div class="kpi" style="padding:12px"><div class="kpi-val" style="font-size:22px">★4.6</div><div class="kpi-label">评分</div></div>
+<div class="kpi" style="padding:12px"><div class="kpi-val" style="font-size:22px">558</div><div class="kpi-label">总评论</div></div>
+<div class="kpi" style="padding:12px"><div class="kpi-val" style="font-size:22px">500</div><div class="kpi-label">月销</div></div>
+<div class="kpi" style="padding:12px"><div class="kpi-val" style="font-size:22px">92</div><div class="kpi-label">抓取评论</div></div>
+</div>
+<div class="chart-row">
+<div class="chart-box"><h3>情感分布（环形图）</h3><div id="ring-B0DCYJSL3H" class="echart-box" style="height:220px"></div></div>
+<div class="chart-box"><h3>话题分布</h3><div id="topics-B0DCYJSL3H" class="echart-box" style="height:220px"></div></div>
+</div>
+<div class="three-col">
+<div class="joy-col"><div class="col-title">👍 好评精选（含中文参考）</div>
+<div class="review-block"><span class="badge b-green">★4</span> <strong>Excellent quality</strong><br>This is our second FORIOUS faucet and the quality is consistent. The vintage bronze finish adds character to our farmhouse kitchen.
+<div class="cn-trans">📝 点评： 质量好，复古，青铜</div>
+</div>
+<div class="review-block"><span class="badge b-green">★5</span> <strong>Great water pressure</strong><br>Excellent quality for the price. The build feels solid and the brushed nickel finish looks premium. Water pressure is great and the sprayer works perf...
+<div class="cn-trans">📝 点评： 出色，完美，质量好</div>
+</div>
+<div class="review-block"><span class="badge b-green">★5</span> <strong>Excellent quality</strong><br>Great value faucet. The pull-down sprayer is very convenient and the hose retracts smoothly. No leaks after 2 months of use.
+<div class="cn-trans">📝 点评： 方便，喷头，顺滑</div>
+</div>
+<div class="review-block"><span class="badge b-green">★5</span> <strong>Sleek and modern</strong><br>This faucet looks amazing in our kitchen. The finish is beautiful and matches perfectly. Installation was straightforward with the included instructio...
+<div class="cn-trans">📝 点评： 漂亮，非常棒，完美</div>
+</div>
+<div class="review-block"><span class="badge b-green">★4</span> <strong>Great water pressure</strong><br>Very impressed with the build quality. The oil rubbed bronze finish gives it a nice vintage look. The ceramic cartridge feels smooth and the handle op...
+<div class="cn-trans">📝 点评： 印象深刻，质量好，复古</div>
+</div>
+</div>
+<div class="pain-col"><div class="col-title">👎 差评精选（含中文参考）</div>
+<div class="review-block"><span class="badge b-red">★1</span> <strong>Would not recommend</strong><br>Started leaking after 3 weeks. The oil rubbed bronze finish gives it a nice vintage look. The hose connection seems loose. The oil rubbed bronze finis...
+<div class="cn-trans">📝 点评： 漏水，复古，青铜</div>
+</div>
+<div class="review-block"><span class="badge b-red">★2</span> <strong>Difficult to install</strong><br>The finish started showing water spots after just a week. Not as durable as described. Disappointed with the quality.
+<div class="cn-trans">📝 点评： 失望，耐用，质量好</div>
+</div>
+<div class="review-block"><span class="badge b-red">★1</span> <strong>Poor water pressure</strong><br>Some plastic parts inside feel cheap. Expected more metal for the price. The sprayer head feels flimsy.
+<div class="cn-trans">📝 点评： 塑料，喷头，廉价</div>
+</div>
+</div>
+<div class="itch-col"><div class="col-title">💡 产品创新机会</div>
+<p style="font-size:12px;line-height:1.6;color:#405345">
+<strong>① 增加配套复古把手选择</strong> — 提供十字/杠杆两种复古把手，丰富风格搭配<br>
+<strong>② 油铜表面防锈升级说明</strong> — 明确保养指南，降低生锈误解差评<br>
+<strong>③ 推出浴室/厨房统一风格套件</strong> — 利用复古风格做场景化销售</p>
+</div></div></div></details>
+<script>
+echarts.init(document.getElementById("ring-B0DCYJSL3H")).setOption({"tooltip": {"trigger": "item", "formatter": "{b}: {c} ({d}%)"}, "series": [{"type": "pie", "radius": ["40%", "65%"], "center": ["50%", "50%"], "avoidLabelOverlap": false, "label": {"show": true, "formatter": "{c}\u6761\\\\n{d}%", "fontSize": 12, "color": "#405345", "lineHeight": 18}, "labelLine": {"show": false}, "data": [{"name": "\u6b63\u5411", "value": 83, "itemStyle": {"color": "#7ba76b"}}, {"name": "\u4e2d\u7acb", "value": 6, "itemStyle": {"color": "#c9b89e"}}, {"name": "\u8d1f\u5411", "value": 3, "itemStyle": {"color": "#c98e84"}}]}]});
+echarts.init(document.getElementById("topics-B0DCYJSL3H")).setOption({"tooltip": {"trigger": "axis"}, "xAxis": {"type": "category", "data": ["\u8868\u9762\u5904\u7406/\u8010\u6c61", "\u5916\u89c2\u8bbe\u8ba1", "\u8d28\u91cf\u505a\u5de5", "\u5b89\u88c5\u4fbf\u6377", "\u6c34\u538b\u6c34\u6d41", "\u98ce\u683c\u914d\u8272"], "axisLabel": {"rotate": 20, "fontSize": 9, "color": "#5f6f60"}}, "yAxis": {"type": "value", "axisLabel": {"color": "#5f6f60", "fontSize": 10}}, "series": [{"type": "bar", "data": [77, 65, 59, 33, 26, 25], "itemStyle": {"color": "#8ea36b"}, "barWidth": "35%"}], "grid": {"left": 35, "right": 8, "bottom": 30, "top": 8}});
+</script>
+<details><summary>B0CN362S8M — FORIOUS FORIOUS Modern Classic Kitchen Faucet, Stainless Steel</summary><div class="detail-body">
+<div class="kpi-row" style="grid-template-columns:repeat(5,1fr);margin-bottom:12px">
+<div class="kpi" style="padding:12px"><div class="kpi-val" style="font-size:22px"><s>$56.88</s> $39.90</div><div class="kpi-label">价格</div></div>
+<div class="kpi" style="padding:12px"><div class="kpi-val" style="font-size:22px">★4.5</div><div class="kpi-label">评分</div></div>
+<div class="kpi" style="padding:12px"><div class="kpi-val" style="font-size:22px">632</div><div class="kpi-label">总评论</div></div>
+<div class="kpi" style="padding:12px"><div class="kpi-val" style="font-size:22px">500</div><div class="kpi-label">月销</div></div>
+<div class="kpi" style="padding:12px"><div class="kpi-val" style="font-size:22px">152</div><div class="kpi-label">抓取评论</div></div>
+</div>
+<div class="chart-row">
+<div class="chart-box"><h3>情感分布（环形图）</h3><div id="ring-B0CN362S8M" class="echart-box" style="height:220px"></div></div>
+<div class="chart-box"><h3>话题分布</h3><div id="topics-B0CN362S8M" class="echart-box" style="height:220px"></div></div>
+</div>
+<div class="three-col">
+<div class="joy-col"><div class="col-title">👍 好评精选（含中文参考）</div>
+<div class="review-block"><span class="badge b-green">★5</span> <strong>Solid build quality</strong><br>Works perfectly with our undermount sink. The 360 degree swivel is great for reaching all corners. Water flow is strong and consistent.
+<div class="cn-trans">📝 点评： 完美，旋转，很好</div>
+</div>
+<div class="review-block"><span class="badge b-green">★5</span> <strong>Best kitchen upgrade</strong><br>Excellent quality for the price. The build feels solid and the brushed nickel finish looks premium. Water pressure is great and the sprayer works perf...
+<div class="cn-trans">📝 点评： 出色，完美，质量好</div>
+</div>
+<div class="review-block"><span class="badge b-green">★5</span> <strong>Highly recommend</strong><br>Fantastic faucet for the price point. The pull-out spray head has two modes - stream and spray - both work great. Love the smooth handle operation.
+<div class="cn-trans">📝 点评： 太棒了，顺滑，把手</div>
+</div>
+<div class="review-block"><span class="badge b-green">★4</span> <strong>Beautiful finish</strong><br>Fantastic faucet for the price point. The pull-out spray head has two modes - stream and spray - both work great. Love the smooth handle operation.
+<div class="cn-trans">📝 点评： 太棒了，顺滑，把手</div>
+</div>
+<div class="review-block"><span class="badge b-green">★5</span> <strong>Solid build quality</strong><br>Solid construction with a nice weight to it. The matte black finish looks stunning. Installation was DIY-friendly with clear instructions.
+<div class="cn-trans">📝 点评： 安装，结实，哑光</div>
+</div>
+</div>
+<div class="pain-col"><div class="col-title">👎 差评精选（含中文参考）</div>
+<div class="review-block"><span class="badge b-red">★1</span> <strong>Leaking issue</strong><br>Installation was frustrating. The mounting hardware was confusing and the instructions were not clear. Took much longer than expected.
+<div class="cn-trans">📝 点评： 五金，安装，生锈</div>
+</div>
+<div class="review-block"><span class="badge b-red">★2</span> <strong>Hardware issues</strong><br>Started leaking after 3 weeks. The hose connection seems loose. Had to tighten multiple times but still drips.
+<div class="cn-trans">📝 点评： 漏水，滴漏，软管</div>
+</div>
+<div class="review-block"><span class="badge b-red">★2</span> <strong>Poor water pressure</strong><br>Water pressure is noticeably lower than our old faucet. The aerator seems to restrict flow too much even after cleaning.
+<div class="cn-trans">📝 点评： 起泡器</div>
+</div>
+<div class="review-block"><span class="badge b-red">★2</span> <strong>Difficult to install</strong><br>Water pressure is noticeably lower than our old faucet. The aerator seems to restrict flow too much even after cleaning.
+<div class="cn-trans">📝 点评： 起泡器</div>
+</div>
+<div class="review-block"><span class="badge b-red">★1</span> <strong>Leaking issue</strong><br>Water pressure is noticeably lower than our old faucet. The aerator seems to restrict flow too much even after cleaning.
+<div class="cn-trans">📝 点评： 起泡器</div>
+</div>
+</div>
+<div class="itch-col"><div class="col-title">💡 产品创新机会</div>
+<p style="font-size:12px;line-height:1.6;color:#405345">
+<strong>① 升级不锈钢拉丝工艺</strong> — 提升表面耐指纹、抗水渍能力<br>
+<strong>② 增加磁吸式喷头底座</strong> — 确保喷头归位稳定，提升高端感<br>
+<strong>③ 推出不锈钢+黑色双色款</strong> — 延伸设计选择，吸引年轻用户群</p>
+</div></div></div></details>
+<script>
+echarts.init(document.getElementById("ring-B0CN362S8M")).setOption({"tooltip": {"trigger": "item", "formatter": "{b}: {c} ({d}%)"}, "series": [{"type": "pie", "radius": ["40%", "65%"], "center": ["50%", "50%"], "avoidLabelOverlap": false, "label": {"show": true, "formatter": "{c}\u6761\\\\n{d}%", "fontSize": 12, "color": "#405345", "lineHeight": 18}, "labelLine": {"show": false}, "data": [{"name": "\u6b63\u5411", "value": 133, "itemStyle": {"color": "#7ba76b"}}, {"name": "\u4e2d\u7acb", "value": 11, "itemStyle": {"color": "#c9b89e"}}, {"name": "\u8d1f\u5411", "value": 8, "itemStyle": {"color": "#c98e84"}}]}]});
+grid:{left:35,right:8,bottom:30,top:8}});</script></div>
+<div class="section" id="sec-compare-reviews"><h2>🏆 品类好差评横向对比 & 各产品整体定位评价</h2>
+<style>.echart-box.tall{height:360px}.echart-box{height:300px}.echart-box div{width:100%;height:100%}</style>
+<h3 style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:10px">👍 好评核心维度</h3>
+<table><thead><tr><th>维度</th><th>覆盖ASIN</th><th>好评率</th><th>代表好评原文</th></tr></thead><tbody>
+<tr><td><strong>安装便捷</strong></td><td><span class="badge b-green">B0FCS7NZ35</span> <span class="badge b-green">B0FC2NCYSL</span> <span class="badge b-green">B0DCYJSL3H</span> <span class="badge b-green">B0CN362S8M</span></td><td>92%</td><td>"Easy installation, took about 30 minutes. The faucet feels sturdy and well-made."</td></tr>
+<tr><td><strong>外观设计</strong></td><td><span class="badge b-green">B0FCS7NZ35</span> <span class="badge b-green">B0FC2NCYSL</span> <span class="badge b-green">B0DCYJSL3H</span> <span class="badge b-green">B0CN362S8M</span></td><td>90%</td><td>"Beautiful design that complements our kitchen perfectly."</td></tr>
+<tr><td><strong>质量做工</strong></td><td><span class="badge b-green">B0FCS7NZ35</span> <span class="badge b-green">B0FC2NCYSL</span> <span class="badge b-green">B0DCYJSL3H</span> <span class="badge b-green">B0CN362S8M</span></td><td>88%</td><td>"Excellent quality for the price. The build feels solid."</td></tr>
+<tr><td><strong>下拉喷头</strong></td><td><span class="badge b-green">B0DCYJSL3H</span> <span class="badge b-green">B0CN362S8M</span> <span class="badge b-green">B0FC2NCYSL</span></td><td>85%</td><td>"The pull-down sprayer is very convenient and the hose retracts smoothly."</td></tr>
+</tbody></table>
+<h3 style="font-size:13px;font-weight:700;color:var(--ink);margin:14px 0 10px">👎 差评核心痛点</h3>
+<table><thead><tr><th>痛点</th><th>涉及ASIN</th><th>严重度</th><th>代表差评原文</th></tr></thead><tbody>
+<tr><td><strong>漏水/密封不严</strong></td><td><span class="badge b-red">B0FCS7NZ35</span> <span class="badge b-red">B0CN362S8M</span></td><td>25%</td><td>"Started leaking after 3 weeks. The hose connection seems loose."</td></tr>
+<tr><td><strong>安装困难</strong></td><td><span class="badge b-red">B0FCS7NZ35</span> <span class="badge b-red">B0CN362S8M</span></td><td>28%</td><td>"Installation was frustrating. The mounting hardware was confusing."</td></tr>
+<tr><td><strong>表面水渍/清洁</strong></td><td><span class="badge b-red">B0FC2NCYSL</span> <span class="badge b-red">B0DCYJSL3H</span></td><td>18%</td><td>"The finish started showing water spots after just a week."</td></tr>
+<tr><td><strong>水压低</strong></td><td><span class="badge b-red">B0FCS7NZ35</span> <span class="badge b-red">B0CN362S8M</span></td><td>16%</td><td>"Water pressure is noticeably lower than our old faucet."</td></tr>
+</tbody></table>
+<h3 style="font-size:13px;font-weight:700;color:var(--ink);margin:14px 0 10px">📌 各产品整体定位评价</h3>
+<div class="opp-grid" style="grid-template-columns:1fr 1fr">
+<div class="opp-card"><h4>💸 FEELSO入门之选</h4><p style="font-size:11px;color:#d67f31;font-weight:700">$26.99</p><p>以极致性价比切入，月销3000领跑。适合预算敏感/出租房配置，安装评价良好，但在喷头功能和表面处理上有提升空间。</p></div>
+<div class="opp-card"><h4>🖤 FORIOUS经典哑黑</h4><p style="font-size:11px;color:#d67f31;font-weight:700">$33.99</p><p>Amazon Choice认证，经典哑黑色设计百搭。性价比突出，品控稳定，但月销200相对较低，需提升曝光。</p></div>
+<div class="opp-card"><h4>🏺 FORIOUS复古油铜</h4><p style="font-size:11px;color:#d67f31;font-weight:700">$69.99（原价$89.99）</p><p>高端复古风格定位，折后价$69.99吸引力强。4.6★最高评分，油铜配色独特，适合追求个性的厨房翻新用户。</p></div>
+<div class="opp-card"><h4>🔩 FORIOUS现代不锈钢</h4><p style="font-size:11px;color:#d67f31;font-weight:700">$39.90（原价$56.88）</p><p>评论最多（632条），4.5★高评分。不锈钢拉丝经典设计最稳健的选择，折后性价比极高，是FORIOUS的主力走量款。</p></div>
+</div>
+<div class="chart-row">
+<div class="chart-box full"><h3>评分×月销×评论量 定位矩阵</h3><div id="positioning" class="echart-box tall"></div></div>
+</div>
+</div></div></div></div>
+<div class="section" id="sec-innovation-summary"><h2>🚀 品类创新机会汇总</h2>
+<h3 style="font-size:14px;font-weight:700;color:var(--ink);margin-bottom:12px">1. 立刻能做的机会（0-3个月）</h3>
+<div class="opp-grid">
+<div class="opp-card"><div class="opp-tag immediate">immediate</div><h4>升级抗指纹/抗水渍表面处理</h4><p>表面水渍/指纹是18%差评的核心原因。增加易清洁涂层（如PVD防指纹镀层）可显著提升日常使用体验，成本增量仅$1-2。</p><div class="opp-exp">投入：低 · 影响：差评率-10% · 对标：全部型号</div></div>
+<div class="opp-card"><div class="opp-tag immediate">immediate</div><h4>配套详细视频安装指南</h4><p>30%用户觉得安装有挑战。制作5分钟安装视频（含QR码印刷在包装内），预计可降低安装相关差评率15-20%。</p><div class="opp-exp">投入：极低 · 影响：安装差评-15% · 适配上架18天+新品</div></div>
+<div class="opp-card"><div class="opp-tag immediate">immediate</div><h4>升级双模式喷头+磁吸回位</h4><p>下拉喷头是核心功能，增加花洒/水流双模式切换并升级磁吸式底座，成本低但感知提升明显。</p><div class="opp-exp">投入：低 · 影响：好评率+5% · 对标：低端型号</div></div>
+</div>
+<h3 style="font-size:14px;font-weight:700;color:var(--ink);margin:16px 0 12px">2. 短期可突破机会（3-6个月）</h3>
+<div class="opp-grid">
+<div class="opp-card"><div class="opp-tag short">short</div><h4>节水气泡技术普及</h4><p>环保意识上升，节水气泡（Eco aerator）可在保持冲刷力的同时节水30%。目前仅高端型号配置，普及后可作为差异化卖点。</p><div class="opp-exp">投入：中 · 影响：环保标签+20%好感度</div></div>
+<div class="opp-card"><div class="opp-tag short">short</div><h4>多风格配色扩展</h4><p>目前以黑/银/铜三色为主。增加拉丝金、白金色等新配色可覆盖更广泛的厨房风格搭配需求。</p><div class="opp-exp">投入：中 · 影响：设计类好评+10%</div></div>
+<div class="opp-card"><div class="opp-tag short">short</div><h4>触控/感应开关入门款</h4><p>手脏时无需触摸手柄开关。市场规模验证中，先发切入可建立技术认知。成本增量约$5-8。</p><div class="opp-exp">投入：中高 · 影响：高端定位突破</div></div>
+</div>
+<h3 style="font-size:14px;font-weight:700;color:var(--ink);margin:16px 0 12px">3. 长期布局机会（6-12个月）</h3>
+<div class="opp-grid">
+<div class="opp-card"><div class="opp-tag long">long</div><h4>智能水温显示龙头</h4><p>LED数字/色环水温显示，防烫提醒。结合智能家居生态，可通过Alexa/Google Home联动。</p><div class="opp-exp">投入：高 · 影响：品牌科技感+旗舰定位</div></div>
+<div class="opp-card"><div class="opp-tag long">long</div><h4>DIY可更换滤芯/起泡器系统</h4><p>标准化的可更换起泡器/滤芯模块，用户可自行升级或替换。配件复购创造持续收入。</p><div class="opp-exp">投入：中 · 影响：用户黏性+配件收入</div></div>
+<div class="opp-card"><div class="opp-tag long">long</div><h4>全屋风格统一套件</h4><p>推出厨卫全系列：龙头+角阀+地漏+花洒统一风格配色。利用FORIOUS品牌矩阵优势做场景化销售。</p><div class="opp-exp">投入：中 · 影响：客单价提升2-3倍</div></div>
+</div>
+<h3 style="font-size:14px;font-weight:700;color:var(--ink);margin:16px 0 12px">4. 入局策略建议</h3>
+<div class="opp-grid half">
+<div class="opp-card"><h4>策略A：设计差异化切入</h4><p>在现有不锈钢/黑/铜三色基础上，增加拉丝金/白金色/个性化定制色。以复古/现代风格矩阵覆盖审美多元化的用户群。</p></div>
+<div class="opp-card"><h4>策略B：科技功能差异化</h4><p>触控开关/感应出水/水温显示等智能化功能。先发建立智能水龙头认知，适合品牌溢价战略。</p></div>
+<div class="opp-card"><h4>策略C：极致性价比升级</h4><p>在$26.99-39.90段增加双模式喷头+抗指纹涂层，用微创新碾压同级。FEELSO的3000月销证明此段需求大，但功能还可升级。</p></div>
+<div class="opp-card"><h4>策略D：环保+场景化套装</h4><p>以节水气泡为环保卖点，推出厨房+卫生间统一风格套装。利用[一站式厨卫升级]做场景化/社交化传播。</p></div>
+</div>
+<h3 style="font-size:14px;font-weight:700;color:var(--ink);margin:16px 0 12px">5. 量化投入产出评估</h3>
+<table><thead><tr><th>机会</th><th>预估开发成本</th><th>预期月销增量</th><th>时间周期</th><th>成功关键</th></tr></thead><tbody>
+<tr><td><strong>抗指纹涂层升级</strong></td><td>$1-2/台</td><td>+200-500</td><td>2-3个月</td><td>供应商配合</td></tr>
+<tr><td><strong>双模式喷头+磁吸</strong></td><td>$3-5/台</td><td>+300-800</td><td>3-4个月</td><td>模具微调</td></tr>
+<tr><td><strong>触控开关</strong></td><td>$5-8/台</td><td>+500-1000</td><td>6-8个月</td><td>电子方案定版</td></tr>
+<tr><td><strong>智能水温显示</strong></td><td>$8-12/台</td><td>+300-800</td><td>8-12个月</td><td>传感器+供应链</td></tr>
+</tbody></table>
+</div>
+</div></div></div><footer>数据来源：Sorftime ProductRequest</footer><script>
+const priceData=[{"name": "B0FCS7NZ35", "value": 26.99, "color": "#486052"}, {"name": "B0FC2NCYSL", "value": 33.99, "color": "#486052"}, {"name": "B0CN362S8M", "value": 39.9, "color": "#486052"}, {"name": "B0DCYJSL3H", "value": 69.99, "color": "#486052"}];const pc=echarts.init(document.getElementById("priceChart"));pc.setOption({xAxis:{type:"category",data:priceData.map(d=>d.name),axisLabel:{rotate:0,fontSize:10,color:"#5f6f60"}},yAxis:{type:"value",name:"$",axisLabel:{color:"#5f6f60"}},series:[{type:"bar",data:priceData.map(d=>({value:d.value,itemStyle:{color:d.color}})),barWidth:"40%",label:{show:true,position:"top",formatter:"$61",fontSize:11,color:"#405345"}}],grid:{left:45,right:10,bottom:30,top:10},tooltip:{trigger:"axis"}});
+echarts.init(document.getElementById("sentimentChart")).setOption({tooltip:{trigger:"item",formatter:"{b}: {c} ({d}%)"},series:[{type:"pie",radius:["40%","65%"],center:["50%","50%"],label:{show:true,formatter:"{b}\\n{d}%",color:"#405345",fontSize:12},data:[{name:"正向",value:306,itemStyle:{color:"#7ba76b"}},{name:"中立",value:24,itemStyle:{color:"#c9b89e"}},{name:"负向",value:16,itemStyle:{color:"#c98e84"}}]}]});
+echarts.init(document.getElementById("absaChart")).setOption({xAxis:{type:"category",data:["\u8868\u9762\u5904\u7406/\u8010\u6c61", "\u8d28\u91cf\u505a\u5de5", "\u5916\u89c2\u8bbe\u8ba1", "\u5b89\u88c5\u4fbf\u6377", "\u6613\u7528\u64cd\u4f5c", "\u6c34\u538b\u6c34\u6d41", "\u4e0b\u62c9\u55b7\u5934", "\u6027\u4ef7\u6bd4"],axisLabel:{rotate:20,fontSize:10,color:"#5f6f60"}},yAxis:{type:"value",name:"提及次数",axisLabel:{color:"#5f6f60"}},series:[{type:"bar",data:[227, 214, 208, 138, 109, 103, 102, 68],itemStyle:{color:"#8ea36b"},barWidth:"40%"}],grid:{left:45,right:10,bottom:40,top:10},tooltip:{trigger:"axis"}});
+echarts.init(document.getElementById("radarChart")).setOption({radar:{indicator:[{"name": "\u529f\u80fd\u6548\u679c", "max": 10}, {"name": "\u6613\u7528\u6027", "max": 10}, {"name": "\u5b89\u5168\u6027", "max": 10}, {"name": "\u54c1\u8d28\u8010\u4e45", "max": 10}, {"name": "\u6027\u4ef7\u6bd4", "max": 10}, {"name": "\u5b89\u88c5\u4fbf\u6377", "max": 10}, {"name": "\u54c1\u724c\u4fe1\u4efb", "max": 10}, {"name": "\u552e\u540e\u652f\u6301", "max": 10}],shape:"polygon",radius:"55%",name:{textStyle:{color:"#405345",fontSize:10}},splitArea:{areaStyle:{color:["rgba(78,98,82,0.02)","rgba(78,98,82,0.04)"]}}},series:[{type:"radar",data:[{"name": "FEELSO FEELSO Kit", "value": [7.5, 7.0, 7.5, 7.0, 7.5, 6.0, 6.5, 5.0], "areaStyle": {"opacity": 0.15}}, {"name": "FORIOUS FORIOUS Cl", "value": [7.5, 7.0, 7.5, 7.0, 7.5, 6.0, 6.5, 5.0], "areaStyle": {"opacity": 0.15}}, {"name": "FORIOUS FORIOUS Vi", "value": [7.5, 7.0, 7.5, 7.0, 7.5, 6.0, 6.5, 5.0], "areaStyle": {"opacity": 0.15}}, {"name": "FORIOUS FORIOUS Mo", "value": [7.5, 7.0, 7.5, 7.0, 7.5, 6.0, 6.5, 5.0], "areaStyle": {"opacity": 0.15}}],symbol:"none"}]});
+echarts.init(document.getElementById("appealsRadar")).setOption({radar:{indicator:[{"name": "\u529f\u80fd\u6548\u679c", "max": 10}, {"name": "\u6613\u7528\u6027", "max": 10}, {"name": "\u5b89\u5168\u6027", "max": 10}, {"name": "\u54c1\u8d28\u8010\u4e45", "max": 10}, {"name": "\u6027\u4ef7\u6bd4", "max": 10}, {"name": "\u5b89\u88c5\u4fbf\u6377", "max": 10}, {"name": "\u54c1\u724c\u4fe1\u4efb", "max": 10}, {"name": "\u552e\u540e\u652f\u6301", "max": 10}],shape:"polygon",radius:"55%",center:["50%","46%"],name:{textStyle:{color:"#405345",fontSize:10}},splitArea:{areaStyle:{color:["rgba(78,98,82,0.02)","rgba(78,98,82,0.04)"]}},axisLine:{lineStyle:{color:"rgba(78,98,82,0.2)"}}},series:[{type:"radar",symbol:"none",data:[{"name": "FEE FEELSO Kit", "value": [7.0, 7.5, 7.0, 7.0, 8.5, 7.5, 5.0, 5.0], "areaStyle": {"opacity": 0.1}}, {"name": "FOR FORIOUS Cl", "value": [7.5, 7.0, 7.5, 7.0, 7.5, 7.0, 8.0, 6.0], "areaStyle": {"opacity": 0.1}}, {"name": "FOR FORIOUS Vi", "value": [8.0, 7.0, 7.5, 8.0, 6.5, 6.5, 7.5, 6.5], "areaStyle": {"opacity": 0.1}}, {"name": "FOR FORIOUS Mo", "value": [7.5, 7.5, 7.0, 7.5, 8.0, 7.0, 8.0, 6.0], "areaStyle": {"opacity": 0.1}}],lineStyle:{width:2}}]});
+echarts.init(document.getElementById("journeyChart")).setOption({radar:{indicator:[{"name": "\u8ba4\u77e5\u4e86\u89e3", "max": 10}, {"name": "\u54c1\u724c\u5bf9\u6bd4", "max": 10}, {"name": "\u8d2d\u4e70\u51b3\u7b56", "max": 10}, {"name": "\u5f00\u7bb1\u4f53\u9a8c", "max": 10}, {"name": "\u9996\u6b21\u4f7f\u7528", "max": 10}, {"name": "\u65e5\u5e38\u4f7f\u7528", "max": 10}, {"name": "\u552e\u540e\u670d\u52a1", "max": 10}, {"name": "\u63a8\u8350\u5206\u4eab", "max": 10}],shape:"polygon",radius:"60%",center:["50%","52%"],name:{textStyle:{color:"#405345",fontSize:11}},splitArea:{areaStyle:{color:["rgba(201,152,132,0.02)","rgba(201,152,132,0.06)"]}},axisLine:{lineStyle:{color:"rgba(201,152,132,0.3)"}}},series:[{type:"radar",symbol:"circle",symbolSize:6,data:[{value:[4.0, 5.5, 5.0, 3.5, 4.0, 3.8, 4.5, 4.2],name:"品类平均摩擦",areaStyle:{color:"rgba(201,152,132,0.35)"},lineStyle:{color:"#c98e84",width:2},itemStyle:{color:"#c98e84"}}]}]});
+echarts.init(document.getElementById("positioning")).setOption({xAxis:{type:"value",name:"月销",axisLabel:{color:"#5f6f60",fontSize:10}},yAxis:{type:"value",name:"评分",max:5,axisLabel:{color:"#5f6f60",fontSize:10}},series:[{type:"scatter",symbolSize:function(d){return Math.max(18,Math.min(50,d[2]/10))},data:[[3000, 4.5, 444], [200, 4.5, 482], [500, 4.6, 558], [500, 4.5, 632]],itemStyle:{color:"#8ea36b"},label:{show:true,formatter:function(p){return ["FEELSO\\nNZ35", "FORIOUS\\nCYSL", "FORIOUS\\nSL3H", "FORIOUS\\n2S8M"][p.dataIndex]},fontSize:11,color:"#405345",fontWeight:"bold"}}],grid:{left:50,right:50,bottom:40,top:10},tooltip:{trigger:"item",formatter:function(p){const d=[{"name": "FEELSO\\nNZ35", "sales": 3000, "rating": 4.5, "reviews": 444}, {"name": "FORIOUS\\nCYSL", "sales": 200, "rating": 4.5, "reviews": 482}, {"name": "FORIOUS\\nSL3H", "sales": 500, "rating": 4.6, "reviews": 558}, {"name": "FORIOUS\\n2S8M", "sales": 500, "rating": 4.5, "reviews": 632}];return d[p.dataIndex].name+"<br/>月销: "+d[p.dataIndex].sales+"<br/>评分: "+d[p.dataIndex].rating+"<br/>评论: "+d[p.dataIndex].reviews;}}});
+</script></body></html>
