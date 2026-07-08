@@ -10,25 +10,33 @@
 import json, os, re, math
 from collections import Counter
 
-BASE = "/opt/data/skills/review-analyzer-skill/data/voc"
-with open(f"{BASE}/all_reviews.json") as f:
-    all_reviews = json.load(f)
+DATA_DIR = os.environ.get("VOC_DATA_DIR", "data/voc")
+BASE = os.path.join(os.path.dirname(os.path.abspath(__file__)), DATA_DIR)
 
-ASINS = ["B07MMQ4BZH","B0DCK8P752","B0BL34CGLM","B0FJDK6BMT","B0FT2PQY7R",
-         "B091KHSV2X","B07RLTPSLB","B0C2C9TC42","B0F3CXQVT3","B0GZZRGJTN"]
+# =============================================
+# EDIT THESE TWO VARIABLES FOR YOUR ANALYSIS
+# =============================================
+# List your target ASINs below
+ASINS = [
+    # Example: "B07MMQ4BZH", "B0DCK8P752", ...
+]
 
+# Product metadata dictionary (use Sorftime ProductRequest to fill)
+# Fields: brand, title, price, rating, reviews, sales, seller
 PRODUCT = {
-    "B07MMQ4BZH":{"brand":"TYMO","title":"Ring Hair Straightening Brush","price":39.85,"rating":4.4,"reviews":83592,"sales":7000,"seller":"TYMO US"},
-    "B0DCK8P752":{"brand":"Wavytalk","title":"Steamline Pro Straightening Brush (w/Steam)","price":67.17,"rating":4.5,"reviews":4733,"sales":5000,"seller":"wavytalk US"},
-    "B0BL34CGLM":{"brand":"TYMO","title":"Ionic Plus Straightening Brush","price":64.99,"rating":4.4,"reviews":7085,"sales":4000,"seller":"HSL Life"},
-    "B0FJDK6BMT":{"brand":"TYMO","title":"FLIPRO 3-in-1 Black","price":48.99,"rating":4.2,"reviews":1622,"sales":4000,"seller":"TYMO US"},
-    "B0FT2PQY7R":{"brand":"TYMO","title":"FLIPRO 3-in-1 Gold","price":48.99,"rating":4.2,"reviews":1622,"sales":500,"seller":"TYMO US"},
-    "B091KHSV2X":{"brand":"TYMO","title":"Ring Plus Red","price":59.34,"rating":4.3,"reviews":9595,"sales":900,"seller":"HSL Life"},
-    "B07RLTPSLB":{"brand":"TYMO","title":"Ring Sakura Pink","price":39.89,"rating":4.4,"reviews":13882,"sales":1000,"seller":"Beauty Life Dist."},
-    "B0C2C9TC42":{"brand":"TYMO","title":"Ionic 10M Ions Pink","price":31.98,"rating":4.2,"reviews":14791,"sales":100,"seller":"Beauty Life Dist."},
-    "B0F3CXQVT3":{"brand":"TYMO","title":"Compact Wave-Design","price":47.37,"rating":4.2,"reviews":618,"sales":900,"seller":"HSL Life"},
-    "B0GZZRGJTN":{"brand":"Bopcal","title":"Cordless 10000mAh Travel","price":59.99,"rating":4.8,"reviews":37,"sales":0,"seller":"WuElite"},
+    # Example:
+    # "B07MMQ4BZH": {"brand": "BrandName", "title": "Product Title", "price": 39.99,
+    #                "rating": 4.4, "reviews": 50000, "sales": 7000, "seller": "SellerName"},
 }
+
+# Load pre-fetched reviews from Sorftime
+reviews_path = f"{BASE}/all_reviews.json"
+if os.path.exists(reviews_path):
+    with open(reviews_path) as f:
+        all_reviews = json.load(f)
+else:
+    all_reviews = {}
+    print(f"⚠️ Warning: {reviews_path} not found. Run fetch_voc_data.py first.")
 
 TOPIC_MAP = {
     "straighten|straight":"直发效果","curl|curling|wave|wavy":"卷发造型","frizz|anti.*frizz":"抗毛躁",
@@ -254,21 +262,26 @@ h(f'<div class="header"><h1>🔥 直发梳品类 VOC 评论分析报告（销量
 
 # ===== Module 1: Decision Card =====
 h('<div class="section" id="sec-decision-card"><h2>📋 一页决策卡｜品类总览</h2>')
-total_tymo = sum(1 for a in ASINS if PRODUCT[a]["brand"]=="TYMO")
+# Dynamic brand detection - no hardcoded brand names
+brand_counts = Counter(p["brand"] for p in PRODUCT.values())
+total_products = len(PRODUCT)
+leading_brand = brand_counts.most_common(1)[0][0] if brand_counts else "?"
+leading_brand_count = brand_counts.most_common(1)[0][1] if brand_counts else 0
+other_brands = [b for b, c in brand_counts.most_common() if b != leading_brand]
 h('<table><thead><tr><th>项目</th><th>结论</th></tr></thead><tbody>')
 h(f'<tr><td>研究范围</td><td>Amazon US · Hair Straightening Brushes 类目 · 销量Top10</td></tr>')
-h(f'<tr><td>竞争格局</td><td>TYMO 占据 {total_tymo}/10 席（80%），Wavytalk（蒸汽护发·$67.17·月销5000）和 Bopcal（无线充电·$59.99·月销0）为挑战者</td></tr>')
+h(f'<tr><td>竞争格局</td><td>{leading_brand} 占据 {leading_brand_count}/{total_products} 席（{leading_brand_count*100//total_products}%），其它品牌各具特色</td></tr>')
 h(f'<tr><td>品类均价</td><td>$ {avg_price}（$31.98 ~ $67.17）</td></tr>')
 h(f'<tr><td>平均评分</td><td>{avg_rating}★（整体偏高，4.2&#126;4.8★）</td></tr>')
 h(f'<tr><td>核心话题</td><td>直发效果({all_topics.most_common(1)[0][1]}次)·抗毛躁({all_topics.most_common(3)[2][1]}次)·速热性能·防烫安全</td></tr>')
-h(f'<tr><td>创新缺口</td><td>无线/便携产品极少（仅Bopcal 1款,月销0）、蒸汽护发细分仅Wavytalk 1款、智能温控/发质识别等功能空白</td></tr>')
-h(f'<tr><td>入局风险</td><td>高：TYMO 品牌壁垒强（8/10席），低价段($30-40)竞争白热化，需差异化功能切入</td></tr>')
+h(f'<tr><td>创新缺口</td><td>基于品类评论分析得出创新机会点（详见创新机会章节）</td></tr>')
+h(f'<tr><td>入局风险</td><td>基于品类竞争格局和评论数据分析（详见创新机会章节）</td></tr>')
 h('</tbody></table></div>')
 
 # ===== Module 2: Data Quality =====
 h('<div class="section" id="sec-data-quality"><h2>📋 数据说明与质量分级</h2>')
 h('<table><thead><tr><th>数据块</th><th>可用性</th><th>可信级别</th><th>处理方式</th></tr></thead><tbody>')
-h('<tr><td>产品元数据</td><td>品牌/价格/评分/评论量/月销</td><td><span class="badge b-green">高</span></td><td>Sorftime ProductRequest 实时拉取（2026-07-08）</td></tr>')
+h('<tr><td>产品元数据</td><td>品牌/价格/评分/评论量/月销*</td><td><span class="badge b-green">高</span></td><td>Sorftime ProductRequest 实时拉取</td></tr>')
 h('<tr><td>评论内容</td><td>Title + Content 字段（英文）</td><td><span class="badge b-green">高</span></td><td>Sorftime ProductReviewsQuery 抓取，每ASIN最多300条</td></tr>')
 h('<tr><td>情感分类</td><td>star≥4 正向、star≤2 负向、star=3 中立</td><td><span class="badge b-orange">中</span></td><td>基于星级+关键词修正，需人工复核偏差案例</td></tr>')
 h('<tr><td>话题提取</td><td>基于关键词正则匹配 30+预设维度</td><td><span class="badge b-orange">中</span></td><td>可能存在归类偏差，尤其复合语义评论</td></tr>')
@@ -296,37 +309,29 @@ for a in ASINS:
 h('</div>')
 
 # Product table with monthly sales shown
-h('<table><thead><tr><th>品牌</th><th>ASIN</th><th>产品名称</th><th>售价</th><th>评分</th><th>评论量</th><th>月销</th><th>一句话点评</th></tr></thead><tbody>')
-one_liners = {
-    "B07MMQ4BZH":"💰 品类销冠·月销7000|回评比11.9","B0DCK8P752":"💨 蒸汽护发差异化·月销5000|回评比1.06",
-    "B0BL34CGLM":"🔝 TYMO高端·月销4000|回评比0.56","B0FJDK6BMT":"🔄 3合1创新·月销4000|回评比2.47",
-    "B0FT2PQY7R":"🥇 金色变体·刚上架|月销500","B091KHSV2X":"🔴 红色变体·稳定月销900",
-    "B07RLTPSLB":"🌸 月销下滑至1000|回评比13.9","B0C2C9TC42":"💵 最便宜入门·月销仅100",
-    "B0F3CXQVT3":"🔲 新款紧凑·月销爬坡至900","B0GZZRGJTN":"🔋 唯一无线·月销0·新品",
-}
+h('<table><thead><tr><th>品牌</th><th>ASIN</th><th>产品名称</th><th>售价</th><th>评分</th><th>评论量</th><th>月销*</th><th>一句话点评</th></tr></thead><tbody>')
+# *月销售额为Sorftime估算值，非Amazon官方数据
+# Generate one-line positioning comments dynamically
+# These should be edited based on your actual product data
+ONE_LINER = {asin: f"{p['brand']} {p['title'][:30]}.." for asin, p in PRODUCT.items()}
 for a in ASINS:
     p=PRODUCT[a]
-    bc="b-green" if p['brand']=='TYMO' else 'b-orange' if p['brand']=='Wavytalk' else 'b-blue'
-    h(f'<tr><td><span class="badge {bc}">{p["brand"]}</span></td><td>{a}</td><td>{p["title"]}</td><td>${p["price"]:.2f}</td><td>★{p["rating"]}</td><td>{p["reviews"]:,}</td><td>{p["sales"]:,}</td><td>{one_liners.get(a,"")}</td></tr>')
+    bc = ["b-green","b-orange","b-blue","b-purple","b-red"][hash(p["brand"]) % 5]
+    h(f'<tr><td><span class="badge {bc}">{p["brand"]}</span></td><td>{a}</td><td>{p["title"]}</td><td>${p["price"]:.2f}</td><td>★{p["rating"]}</td><td>{p["reviews"]:,}</td><td>{p["sales"]:,}</td><td>{ONE_LINER.get(a,"")}</td></tr>')
 h('</tbody></table></div>')
 
 # ===== Module 4: AI Summary =====
 h('<div class="section" id="sec-ai-summary"><h2>🧠 品类总体分析总结</h2>')
 h('<div class="ai-card"><p style="font-size:13px;line-height:1.7;color:#405345">')
-h('<strong>竞争格局</strong>：直发梳品类呈现「一超独大」格局——<strong>TYMO</strong> 品牌占据10席中的8席（80%），覆盖从 $31.98 的入门款到 $64.99 的高端 Ionic Plus。')
-h('TYMO 内部产品线高度重叠，8款产品主要靠颜色/价格区间做区分，创新力不足。')
-h('Wavytalk 以蒸汽护发功能差异化切入（$67.17，月销5000），Bopcal 以无线便携为卖点（$59.99，但月销仅0）。')
+h('<strong>竞争格局</strong>：基于品类销量和评论数据，分析各品牌的市场地位与差异化策略。领先品牌占据主要市场份额，挑战者品牌可关注差异化功能切入。')
 h('<br><br>')
-h('<strong>品类健康度</strong>：整体评分 4.2-4.8★，品类平均约 4.3★，整体好评率较高。')
-h('TYMO Ring 系列（B07MMQ4BZH）以 83,592 条评论 + 7,000 月销成为品类绝对龙头（回评比 11.9x，可见口碑效应极强）。')
-h('价格带以$30-50为主力区间（6/10款），消费者对直发梳的接受价集中在此段。月销分布极不均匀——头部3款贡献 80% 销量，尾部产品流速差。')
+h('<strong>品类健康度</strong>：整体评分区间和各价格段分布反映品类健康状态。头部产品贡献大部分销量，尾部产品流速较慢，市场集中度较高。')
 h('<br><br>')
 h('<strong>用户情感基调</strong>：以「直发效果」（37.5%提及）和「抗毛躁」（18.3%提及）为主导话题，用户对直发效果满意度高。')
 h('但防烫安全（13.5%）、断发拉扯（11.2%）是两个核心痛点和退货主因。')
 h('差异化护发功能（负离子/蒸汽/护发精华）开始成为用户关注的新方向，但目前覆盖率低。')
 h('<br><br>')
-h('<strong>入局建议</strong>：新进入者建议避开低价段红海（$30-40），在 $50-80 区间以「蒸汽护发」或「无线便携」或「智能温控」作为差异化突破点。')
-h('TYMO 8产品的弱点是同质化严重，Wavytalk 已验证蒸汽护发方向的市场接受度（$67高定价+5000月销），说明该细分市场仍有空间。')
+h('<strong>入局建议</strong>：综合竞争格局与用户痛点，新进入者可以从用户评论提及的差异化方向（详见创新机会章节）切入市场。')
 h('</p></div></div>')
 
 # ===== Module 5: PSPS =====
@@ -395,8 +400,8 @@ h('<p><strong>快速加热</strong> (17.2%)<br><progress value="90" max="100" st
 h('<p><strong>直发效果好</strong> (37.5%)<br><progress value="95" max="100" style="width:100%;height:6px;accent-color:#cca36e"></progress><br>拉直效率决定复购率</p>')
 h('<p><strong>温控调节</strong> (12.1%)<br><progress value="75" max="100" style="width:100%;height:6px;accent-color:#cca36e"></progress><br>针对不同发质调节温度</p></div>')
 h('<div class="joy-col"><div class="col-title">🟢 魅力型需求 Attractive</div>')
-h('<p><strong>蒸汽护发</strong> (3.2%)<br><progress value="40" max="100" style="width:100%;height:6px;accent-color:#87a07d"></progress><br>Wavytalk首次引入，差异化高</p>')
-h('<p><strong>无线便携</strong> (5.8%)<br><progress value="50" max="100" style="width:100%;height:6px;accent-color:#87a07d"></progress><br>仅Bopcal提供，潜在市场需求大</p>')
+h('<p><strong>蒸汽护发</strong> (3.2%)<br><progress value="40" max="100" style="width:100%;height:6px;accent-color:#87a07d"></progress><br>差异化功能，吸引力高</p>')
+h('<p><strong>无线便携</strong> (5.8%)<br><progress value="50" max="100" style="width:100%;height:6px;accent-color:#87a07d"></progress><br>市场供应有限，潜在需求大</p>')
 h('<p><strong>负离子/护发精华</strong> (8.4%)<br><progress value="55" max="100" style="width:100%;height:6px;accent-color:#87a07d"></progress><br>高端差异化要素，关注度上升</p></div>')
 h('</div></div>')
 
@@ -418,14 +423,14 @@ h('</div></div></div>')
 # ===== Module 10: Journey Friction =====
 stages = ["认知了解","品牌对比","购买决策","开箱体验","首次使用","日常使用","售后服务","推荐分享"]
 cat_friction = {"认知了解":5.2,"品牌对比":5.8,"购买决策":5.1,"开箱体验":3.8,"首次使用":4.5,"日常使用":4.2,"售后服务":3.5,"推荐分享":4.8}
-hf_details = [("认知了解",5.2,"搜索直发梳时信息繁杂","TYMO 8款产品差异不清晰","消费者需要花时间区分 'Ring' vs 'Ring Plus' vs 'Ionic' vs 'FLIPRO'，虽然核心功能几乎相同"),
-    ("品牌对比",5.8,"TYMO/Wavytalk间对比难度大","Wavytalk以蒸汽差异化,Bopcal以无线差异化","但三者价格区间重叠($48-67)，功能差异不明显，用户难以快速决策"),
-    ("购买决策",5.1,"浏览到加购的转化阻力","$40+价位段决策更谨慎","头部3款共识度高转化顺畅，低价款($31.98)反而因低评分/低评论量转化差"),
-    ("开箱体验",3.8,"开箱第一印象","包装和说明书质影响首评","基本满意—用户对包装期待不高，但英文说明书对非母语用户造成障碍"),
+hf_details = [("认知了解",5.2,"搜索产品时信息繁杂","各品牌产品差异不清晰","消费者需要花时间区分各型号差异，虽然核心功能可能几乎相同"),
+    ("品牌对比",5.8,"品牌间对比难度大","各品牌以不同功能差异化","不同品牌价格区间重叠，功能差异不明显，用户难以快速决策"),
+    ("购买决策",5.1,"浏览到加购的转化阻力","中高价段决策更谨慎","头部产品共识度高转化顺畅，低价款反而因低评分/低评论量转化差"),
+    ("开箱体验",3.8,"开箱第一印象","包装和说明书影响首评","基本满意—用户对包装期待不高，但说明书对非母语用户造成障碍"),
     ("首次使用",4.5,"第一次使用是否顺畅","温度设置直观度+梳齿是否卡发","部分用户反映不清楚最佳温度设置，首次使用有轻微烫伤风险"),
-    ("日常使用",4.2,"长期使用耐久度和满意度","发质改善效果决定使用频次","电池无线款续航不足(仅Bopcal)，有线款电源线短影响体验"),
-    ("售后服务",3.5,"问题出现后的支持响应","退换货流程影响品牌忠诚度","质量问题(冒烟/断电)用户最焦虑，但目前反馈不多"),
-    ("推荐分享",4.8,"用户到推广者转化","高满意度用户更愿分享对比效果","品类本来就适合Before/After展示，社媒传播潜力大")]
+    ("日常使用",4.2,"长期使用耐久度和满意度","发质改善效果决定使用频次","电池无线款续航不足，有线款电源线短影响体验"),
+    ("售后服务",3.5,"问题出现后的支持响应","退换货流程影响品牌忠诚度","质量问题用户最焦虑，但目前反馈不多"),
+    ("推荐分享",4.8,"用户到推广者转化","高满意度用户更愿分享对比效果","品类适合Before/After展示，社媒传播潜力大")]
 h('<div class="section" id="sec-journey"><h2>🗺️ 用户旅程摩擦分析</h2>')
 h('<div class="chart-box full"><h3>品类平均·8阶段摩擦雷达（1-10分）</h3><div id="journeyChart" class="echart-box tall"></div></div>')
 for name,score,desc,summary,detail in hf_details:
@@ -493,7 +498,7 @@ h('<h3 style="font-size:14px;font-weight:700;color:var(--ink);margin-bottom:12px
 h('<div class="opp-grid">')
 for title,tag,desc,exp in [
     ("差异化温控调节","immediate","目前仅少数产品提供多档温控。增加3-5档温度调节(140°C-230°C)是成本最低的高感知差异化。经检验，增加温控可覆盖12.1%的用户需求。","投入：低 · 影响：评论正向率+8% · 对标：缺少温控的低端型号"),
-    ("升级360°旋转电源线","immediate","用户普遍抱怨电源线短且缠绕。升级1.8m 360°旋转线缆可解决11%负面提及的线缆痛点。此改进在B0F3CXQVT3等新型号上已完成。","投入：低 · 影响：差评率-5% · 对标：B0C2C9TC42等基础款"),
+    ("升级360°旋转电源线","immediate","用户普遍抱怨电源线短且缠绕。升级1.8m 360°旋转线缆可解决线缆相关的用户痛点。","投入：低 · 影响：差评率-5%"),
     ("防烫设计升级","immediate","13.5%用户提及烫伤/过热问题。增加隔热齿尖保护套+过温自动降档功能，成本低但差异化感知强。","投入：中 · 影响：退货率降3-5% · 对标：全部型号"),
 ]:
     h(f'<div class="opp-card"><div class="opp-tag {tag}">{tag}</div><h4>{title}</h4><p>{desc}</p><div class="opp-exp">{exp}</div></div>')
@@ -501,28 +506,28 @@ h('</div>')
 h('<h3 style="font-size:14px;font-weight:700;color:var(--ink);margin:16px 0 12px">2. 短期可突破机会（3-6个月）</h3>')
 h('<div class="opp-grid">')
 for title,tag,desc,exp in [
-    ("蒸汽护发功能普及","short","Wavytalk Steamline Pro已验证蒸汽护发作为差异化卖点的可行性。在直发梳中加入蒸汽润发功能降低热损伤。目前仅Wavytalk 1家提供，市场教育已完成。","投入：中高 · 影响：品类创新标杆 · 对标：Wavytalk B0DCK8P752"),
-    ("无线/锂电便携方案","short","仅Bopcal提供无线方案($59.99/月销0)，但旅行用户需求占18%。开发2000-5000mAh锂电直发梳，聚焦旅行/出差场景。关键是：续航>30分钟+充电底座。","投入：高 · 影响：独特卖点 · 对标：Bopcal B0GZZRGJTN"),
-    ("发质识别智能温控","short","现有产品均无自动发质识别。引入电阻检测传感器+AI温控算法，自动识别粗发/细发/卷发并匹配最佳温度。这将是品类首个智能化升级。","投入：中高 · 影响：高端品牌突破 · 对标：Dyson技术路线"),
+    ("蒸汽护发功能普及","short","市场已初步验证蒸汽护发作为差异化卖点的可行性。在直发梳中加入蒸汽润发功能降低热损伤，目前仅有少数产品提供，市场教育空间大。","投入：中高 · 影响：品类创新标杆"),
+    ("无线/锂电便携方案","short","旅行用户需求占比高，无线便携产品市场供应有限。开发2000-5000mAh锂电直发梳，聚焦旅行/出差场景。关键是：续航>30分钟+充电底座。","投入：高 · 影响：独特卖点"),
+    ("发质识别智能温控","short","现有产品均无自动发质识别。引入电阻检测传感器+AI温控算法，自动识别粗发/细发/卷发并匹配最佳温度。","投入：中高 · 影响：高端品牌突破 · 对标：Dyson技术路线"),
 ]:
     h(f'<div class="opp-card"><div class="opp-tag {tag}">{tag}</div><h4>{title}</h4><p>{desc}</p><div class="opp-exp">{exp}</div></div>')
 h('</div>')
 h('<h3 style="font-size:14px;font-weight:700;color:var(--ink);margin:16px 0 12px">3. 长期布局机会（6-12个月）</h3>')
 h('<div class="opp-grid">')
 for title,tag,desc,exp in [
-    ("护发精华二合一系统","long","在负离子基础上增加护发精华注入口(可替换芯)，边直发边释放护发素/精华。类似打印机的墨盒模式——耗材复购创造持续收入。","投入：中 · 影响：护发人群精准切入 · 对标：TYMO Ionic系列+创新"),
-    ("APP智控+数据化护发","long","蓝牙连接手机APP，记录使用频次/温度偏好/发质变化曲线，生成个性化护发建议。实现从工具到健康管理的升维。","投入：高 · 影响：品牌数字化布局 · 对标：智能家居生态"),
-    ("子品牌/联名款策略","long","TYMO 8产品同质化严重，建议新进入者不做Sub-brand而是直接推出颠覆性功能。可考虑与KOL联名：如'美妆博主联名款'搭载个性化温控预设。","投入：中 · 影响：Z世代心智抢占 · 对标：Dyson x 美妆"),
+    ("护发精华二合一系统","long","在负离子基础上增加护发精华注入口(可替换芯)，边直发边释放护发素/精华。类似打印机的墨盒模式——耗材复购创造持续收入。","投入：中 · 影响：护发人群精准切入"),
+    ("APP智控+数据化护发","long","蓝牙连接手机APP，记录使用频次/温度偏好/发质变化曲线，生成个性化护发建议。实现从工具到健康管理的升维。","投入：高 · 影响：品牌数字化布局"),
+    ("子品牌/联名款策略","long","领先品牌同质化严重，建议新进入者直接推出颠覆性功能，或与KOL联名推出个性化温控预设产品。","投入：中 · 影响：Z世代心智抢占"),
 ]:
     h(f'<div class="opp-card"><div class="opp-tag {tag}">{tag}</div><h4>{title}</h4><p>{desc}</p><div class="opp-exp">{exp}</div></div>')
 h('</div>')
 h('<h3 style="font-size:14px;font-weight:700;color:var(--ink);margin:16px 0 12px">4. 入局策略建议</h3>')
 h('<div class="opp-grid half">')
 for title,desc in [
-    ("策略A：中端差异化切入 ($50-$65)","以蒸汽护发或无线便携为核心卖点，避开$30-40的低价红海。Wavytalk已验证此路径可行—虽销量5000但仍维持$67高定价。此价位段仅TYMO Ionic Plus($65)和Wavytalk($67)，存在空白。"),
-    ("策略B：极致性价比 ($25-$35)","利用中国供应链优势在低价段推出有温控+旋转线+负离子的性价比产品。该段现有产品B0C2C9TC42($31.98,月销仅100)表现平平，存在替代空间。注意：需要至少月销2000才能盈利。"),
-    ("策略C：高端品牌突破 ($80+)","类似Dyson策略，用革新性技术(智能温控芯片/APP联动/发质识别/AI护发方案)进入高端。目前$60+仅有Wavytalk和Bopcal，$80+完全空白($0竞争)，是先发占位的最佳窗口。"),
-    ("策略D：场景化套装+社媒传播","推拉直+卷发+吹风三合一套装(类似FLIPRO概念拓展)，或针对TikTok/Instagram社交传播设计颜值化产品。品类天然适合Before/After对比内容。"),
+    ("策略A：中端差异化切入","以差异化功能为核心卖点，避开低价红海，在中价位段寻找空白。已有产品验证此路径可行——差异化产品可维持较高定价。"),
+    ("策略B：极致性价比","利用供应链优势在低价段推出有基础功能(温控+旋转线+负离子)的性价比产品。该段现有产品表现平平，存在替代空间。"),
+    ("策略C：高端品牌突破","用革新性技术(智能温控芯片/APP联动/发质识别/AI护发方案)进入高端价位段。该价位段竞争空白，是先发占位的最佳窗口。"),
+    ("策略D：场景化套装+社媒传播","推功能组合套装(拉直+卷发+吹风)或多合一产品，或针对TikTok/Instagram社交传播设计颜值化产品。品类天然适合Before/After对比内容。"),
 ]:
     h(f'<div class="opp-card"><h4>{title}</h4><p>{desc}</p></div>')
 h('</div>')
@@ -538,22 +543,24 @@ for name,cost,inc,time,kf in [
 h('</tbody></table>')
 h('</div>')
 
-h('<footer>分析负责人：郑佳 · 数据来源：Sorftime ProductRequest · 分析工具：Hermes Agent · 2026-07-08</footer>')
+# Footer - check for attribution env var
+attribution = os.environ.get("VOC_ATTRIBUTION", "")
+if attribution:
+    h(f'<footer>{attribution} · 数据来源：Sorftime ProductRequest · 分析工具：Hermes Agent · </footer>')
+else:
+    h('<footer>数据来源：Sorftime ProductRequest · 分析工具：Hermes Agent · </footer>')
 
 # ===== ALL CHARTS JS =====
 h('</div></div><script>')
 
-# Price chart
-h("""
-const priceData = """ + json.dumps([{"name":a,"value":PRODUCT[a]["price"],"brand":PRODUCT[a]["brand"]} for a in ASINS]) + """;
-priceData.sort((a,b)=>a.value-b.value);
-const pc = echarts.init(document.getElementById('priceChart'));
-pc.setOption({
-  xAxis:{type:'category',data:priceData.map(d=>d.name),axisLabel:{rotate:45,fontSize:9,color:'#5f6f60'}},
-  yAxis:{type:'value',name:'$',axisLabel:{color:'#5f6f60'}},
-  series:[{type:'bar',data:priceData.map(d=>({value:d.value,itemStyle:{color:d.brand==='TYMO'?'#486052':d.brand==='Wavytalk'?'#d67f31':'#6f8ab1'}})),barWidth:'35%'}],
-  grid:{left:45,right:10,bottom:55,top:10},tooltip:{trigger:'axis'}
-});""")
+# Price chart - build data dynamically
+price_chart_data = [{"name":a, "value":PRODUCT[a]["price"], "brand":PRODUCT[a]["brand"]} for a in ASINS]
+price_chart_data.sort(key=lambda x: x["value"])
+brand_colors = ["#486052","#d67f31","#6f8ab1","#a06c8a","#5b8f7a"]
+for d in price_chart_data:
+    d["color"] = brand_colors[hash(d["brand"]) % len(brand_colors)]
+price_js = json.dumps([{"name":d["name"],"value":d["value"],"color":d["color"]} for d in price_chart_data])
+h(f'<script>const priceData={price_js};const pc=echarts.init(document.getElementById("priceChart"));pc.setOption({{xAxis:{{type:"category",data:priceData.map(d=>d.name),axisLabel:{{rotate:45,fontSize:9,color:"#5f6f60"}}}},yAxis:{{type:"value",name:"$",axisLabel:{{color:"#5f6f60"}}}},series:[{{type:"bar",data:priceData.map(d=>({{value:d.value,itemStyle:{{color:d.color}}}})),barWidth:"35%"}}],grid:{{left:45,right:10,bottom:55,top:10}},tooltip:{{trigger:"axis"}}}});')
 
 # Sentiment pie (approximate)
 h(f'echarts.init(document.getElementById("sentimentChart")).setOption({{series:[{{type:"pie",radius:["40%","65%"],center:["50%","50%"],data:[{{name:"正向",value:{total_p},itemStyle:{{color:"#7ba76b"}}}},{{name:"中立",value:0,itemStyle:{{color:"#c9b89e"}}}},{{name:"负向",value:1,itemStyle:{{color:"#c98e84"}}}}],label:{{formatter:"{{b}}\\n{{d}}%",color:"#405345",fontSize:12}}}}]}});')
@@ -562,13 +569,21 @@ h(f'echarts.init(document.getElementById("sentimentChart")).setOption({{series:[
 absa_d = [{"name":t,"value":c} for t,c in list(all_topics.most_common(8))]
 h(f'echarts.init(document.getElementById("absaChart")).setOption({{xAxis:{{type:"category",data:{json.dumps([d["name"] for d in absa_d])},axisLabel:{{rotate:20,fontSize:10,color:"#5f6f60"}}}},yAxis:{{type:"value",name:"提及次数",axisLabel:{{color:"#5f6f60"}}}},series:[{{type:"bar",data:{json.dumps([d["value"] for d in absa_d])},itemStyle:{{color:"#8ea36b"}},barWidth:"40%"}}],grid:{{left:45,right:10,bottom:40,top:10}},tooltip:{{trigger:"axis"}}}});')
 
-# Radar top4
-h("""echarts.init(document.getElementById('radarChart')).setOption({radar:{indicator:["直发效果","易用性","安全性","品质","性价比","便携","品牌","售后"].map(n=>({name:n,max:10})),shape:'polygon',radius:'55%',name:{textStyle:{color:'#405345',fontSize:10}},splitArea:{areaStyle:{color:['rgba(78,98,82,0.02)','rgba(78,98,82,0.04)']}}},series:[{type:'radar',data:[
-{name:'TYMO Ring',value:[8.5,8.0,7.0,8.2,7.8,6.5,9.0,6.5],areaStyle:{opacity:0.15}},
-{name:'Wavytalk',value:[8.0,7.5,7.5,7.8,6.5,6.0,6.0,6.0],areaStyle:{opacity:0.15}},
-{name:'TYMO Ionic+',value:[8.2,7.8,7.2,8.0,6.0,6.5,7.5,6.0],areaStyle:{opacity:0.15}},
-{name:'TYMO FLIPRO',value:[8.0,7.5,7.0,7.5,7.5,7.0,7.0,6.0],areaStyle:{opacity:0.15}}
-],symbol:'none'}]});""")
+# Radar chart for top products with non-repeating brand names
+top_asins = ASINS[:4]  # Show top 4 ASINs
+# Build unique short names
+radar_names = {}
+brand_count = Counter(PRODUCT[a]["brand"] for a in top_asins)
+brand_seen = {}
+for a in top_asins:
+    b = PRODUCT[a]["brand"]
+    brand_seen[b] = brand_seen.get(b, 0) + 1
+    short = b if brand_seen[b] == 1 else f"{b}{brand_seen[b]}" 
+    radar_names[a] = f"{short} {PRODUCT[a]['title'][:6]}"
+radar_values = json.dumps([{"name":radar_names[a],"value":[8.0,7.5,7.0,7.0,7.0,6.0,6.0,6.0],"areaStyle":{"opacity":0.15}} for a in top_asins])
+h(f'<script>echarts.init(document.getElementById("radarChart")).setOption({{radar:{{indicator:{json.dumps([{"name":d,"max":10} for d in ["直发效果","易用性","安全性","品质","性价比","便携","品牌","售后"]])},shape:"polygon",radius:"55%",name:{{textStyle:{{color:"#405345",fontSize:10}}}},splitArea:{{areaStyle:{{color:["rgba(78,98,82,0.02)","rgba(78,98,82,0.04)"]}}}}}},series:[{{type:"radar",data:{radar_values},symbol:"none"}}]}});')
+
+#
 
 # APPEALS full
 appeal_dims = ["功能效果","易用性","安全性","品质耐久","性价比","便携设计","品牌信任","售后支持"]
@@ -613,6 +628,6 @@ print(f"✅ Generated: {os.path.getsize(outpath)} bytes ({len(HL)} lines)")
 # Verify
 with open(outpath) as f:
     c = f.read()
-for check in ["Wavytalk","TYMO","Bopcal","$67.17","月销","品类总体分析总结","创新机会","立刻能做的机会","入局策略","review-block","cn-trans","compareBar","positioning","journeyChart"]:
+for check in ["月销","品类总体分析总结","创新机会","立刻能做的机会","入局策略","review-block","cn-trans","compareBar","positioning","journeyChart"]:
     assert check in c, f"Missing: {check}"
 print("✅ All verification checks passed")

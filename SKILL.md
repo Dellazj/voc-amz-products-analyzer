@@ -1,6 +1,6 @@
 ---
 name: voc-amz-products-analyzer
-version: 1.0.0
+version: 1.1.0
 author: Della Zheng (based on review-analyzer-skill by @buluslan)
 description: |
   Amazon品类VOC（Voice of Customer）评论分析工具。
@@ -8,13 +8,20 @@ description: |
   自动生成14模块品类洞察HTML报告（含ECharts可视化图表），
   支持一键部署到Vercel。
 
+  什么时候用：
+  - 用户说"分析这个品类的评论"、"生成VOC报告"、"品类洞察"
+  - 用户提供了多个ASIN要求做竞品分析
+  - 用户遇到了Sorftime API错误（Code 10等）
+  - 用户问如何从亚马逊拉取评论数据做分析
+  - 凡是涉及亚马逊选品、竞品分析、评论分析、品类调研，即使没明确说VOC，也应该加载此Skill
+
   核心能力：
   - Sorftime API批量获取产品元数据和评论（支持翻页300条/ASIN）
   - 基于星级+关键词的情感分类（正/中/负三级）
-  - 30+维度话题自动提取（直发效果/防烫安全/速热性能/断发拉扯等）
-  - 14模块品类洞察报告（含PSPS/ABSA/APPEALS/KANO/痛爽痒/旅程摩擦/创新机会等）
-  - 品牌自动校验（YMO vs Wavytalk vs Bopcal等）
-  - 羊皮纸暖色风格HTML（Warm Parchment CSS主题）
+  - 30+维度话题自动提取
+  - 14模块品类洞察报告（PSPS/ABSA/APPEALS/KANO/痛爽痒/旅程摩擦/创新机会等）
+  - 品牌自动校验
+  - 羊皮纸暖色风格HTML（主题色：#f5ebd8 主色 / #e8dcc5 辅色 / #405345 文字）
   - Vercel一键部署生成在线链接
 license: MIT
 allowed-tools:
@@ -30,7 +37,7 @@ allowed-tools:
 
 生成示例：![VOC Report Preview](https://voc-report-v7-deploy.vercel.app)
 
-（实际为羊皮纸暖色风格ECharts报告，包含14个分析模块、20+可视化图表、2469条评论分析）
+（实际为羊皮纸暖色风格ECharts报告，包含14个分析模块、20+可视化图表）
 
 ## 快速开始
 
@@ -51,7 +58,54 @@ git clone https://github.com/dellazj/voc-amz-products-analyzer.git
 cd voc-amz-products-analyzer
 uv venv .venv && source .venv/bin/activate
 uv pip install -r requirements.txt
-```
+
+
+## 🚨 数据准确性 — 不可妥协的规则
+
+**这是使用本Skill最重要的规则。违反以下任何一条将导致报告包含虚假数据。**
+
+### 生成报告前的数据检查
+
+在运行 `generate_voc_report.py` 或委托子代理生成报告之前，必须验证：
+
+1. **数据文件存在且可读**：
+   ```bash
+   test -f data/voc/product_info.json && echo "PRODUCT OK" || echo "MISSING"
+   test -f data/voc/all_reviews.json && echo "REVIEWS OK" || echo "MISSING"
+   ```
+   如果文件缺失，先运行数据获取步骤（见下方工作流），**不要跳过数据获取直接生成**
+
+2. **数据来源必须是真实的Sorftime API输出**：
+   - `product_info.json` = 来自 `sorftime api ProductRequest ...` 的返回结果（或离线数据生成器）
+   - `all_reviews.json` = 来自 `sorftime api ProductReviewsQuery ...` 的返回结果（或离线数据生成器）
+   - ❌ **禁止**：子代理自行虚构价格、评分、月销量、品牌名等数据
+   - ❌ **禁止**：在`product_info.json`和`all_reviews.json`不存在时自行创建包含虚构数据的数据文件
+
+3. **子代理数据污染防护** —— 当使用 `delegate_task()` 委托子代理生成报告时：
+   - ❌ 子代理没有Sorftime API凭证，会在API调用失败时**虚构数据**
+   - ✅ **正确的做法**：在主进程中预先验证真实数据文件已存在，将文件路径和摘要作为`context`字段传入子代理
+   - ✅ 在子代理的`goal`中明确写明：**"所有价格、评分、月销量、品牌名等数据必须从提供的JSON文件读取。如果JSON文件不存在，报告创建失败也不要虚构任何数据。"**
+   - ✅ **核实结果**：子代理报告完成后，检查输出HTML中是否有真实的品牌名、价格值和ASIN，与原始数据文件对比确认
+
+4. **离线模式**（Sorftime API不可用时的替代方案）：
+   ```bash
+   python3 scripts/generate_offline_reviews.py
+   ```
+   这会生成**结构正确的模拟数据**（但数值可被用户自定义编辑）。编辑脚本开头的`PRODUCT_INFO`字典可自定义ASIN/品牌/价格。
+
+5. **ASIN独立过滤**：ProductReviewsQuery返回的数据中会混入变体ASIN的评论。在分析时**只保留当前ASIN的评论**（用`Asin`字段过滤），不要混入变体评论。
+
+### 发布前清理清单 🚨
+
+将Skill发布到GitHub或公开分享前，必须：
+
+- `generate_voc_report.py` — 将 `ASINS` 列表清空为模板占位符
+- `generate_voc_report.py` — 删除 `PRODUCT` 字典中所有真实的ASIN/品牌/价格/销量
+- `fetch_voc_data.py` — 将 `ASINS` 列表清空
+- `fetch_all_reviews.py` — 将 `ASINS` 列表清空
+- `SKILL.md` — 删除所有真实ASIN引用、品牌映射表、具体品类名称
+- `references/` — 检查是否有真实数据引用
+- 原则：**除了示例数据，不应出现任何真实ASIN、品牌名、具体价格和销量**
 
 ## 工作流
 
@@ -68,7 +122,8 @@ sorftime use default
 
 ```bash
 # 批量获取3~10个竞品ASIN的产品数据
-sorftime api ProductRequest '{"asin": "B07MMQ4BZH,B0DCK8P752,B0BL34CGLM,B0FJDK6BMT,B091KHSV2X,B07RLTPSLB,B0C2C9TC42,B0F3CXQVT3,B0GZZRGJTN,B0FT2PQY7R", "trend": 2}' --domain 1
+# 将下面的ASIN列表替换为你的目标ASIN
+sorftime api ProductRequest '{"asin": "ASIN1,ASIN2,ASIN3,...", "trend": 2}' --domain 1
 ```
 
 > ⚠️ **关键**：`ProductRequest` 参数名是 `asin`（逗号分隔字符串），**不是** `asinList`（数组）。用错了返回Code 10错误。
@@ -78,13 +133,14 @@ sorftime api ProductRequest '{"asin": "B07MMQ4BZH,B0DCK8P752,B0BL34CGLM,B0FJDK6B
 每ASIN最多翻3页（每页100条，最多300条）：
 
 ```bash
-sorftime api ProductReviewsQuery '{"asin": "B07MMQ4BZH", "pageIndex": 1}' --domain 1
+sorftime api ProductReviewsQuery '{"asin": "YOUR_ASIN", "pageIndex": 1}' --domain 1
 ```
+> 注意：每100条/页，variant ASINs的评论会混入返回结果中。
 
-使用批处理脚本：
+使用批处理脚本（先编辑 `fetch_voc_data.py` 中的 ASINS 列表）：
 
 ```bash
-python3 fetch_voc_data.py --asins B07MMQ4BZH,B0DCK8P752,B0BL34CGLM,B0FJDK6BMT,B091KHSV2X,B07RLTPSLB,B0C2C9TC42,B0F3CXQVT3,B0GZZRGJTN,B0FT2PQY7R
+python3 fetch_voc_data.py
 ```
 
 ### 第四步：生成VOC品类分析报告
@@ -106,6 +162,65 @@ echo '{"version":2}' > /tmp/voc-deploy/vercel.json
 # 2. 部署（需配置Vercel token）
 vercel deploy --prod --yes --force --cwd /tmp/voc-deploy
 ```
+
+---
+
+## 报告生成规范
+
+### 署名（必须！）
+
+**生成报告前，先询问用户**："报告底部需要署名吗？如果需要，请提供署名文字（如'分析负责人：XXX'）。如果不需要，底部留空。"
+
+- 如果用户提供了署名文字 → 放在报告尾部
+- 如果用户说不需要或没有要求 → 底部留空，不加任何署名
+
+### 主题风格
+
+- **主题色**：羊皮纸暖色风格
+  - 主背景：`#f5ebd8`
+  - 卡片背景：`#e8dcc5`
+  - 文字色：`#405345`（深墨绿）
+  - 标题色：`#2b3a30`
+  - 强调色：`#486052`
+  - 边框线：`#d4c9b0`
+- **字体**：系统无衬线（`-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`）
+- **侧边栏导航**：右侧悬浮，hover展开，14个锚点
+
+### 数据来源标注
+
+在每个图表下方或报告开头的数据说明模块中，标注数据来源：
+- "数据来源：Sorftime API（产品数据 + 评论数据）"
+- "评论抓取时间：YYYY-MM-DD"
+- "分析ASIN数量：N个"
+
+### 月销售额标注
+
+报告中显示的月销售额（monthly sales / 月销）**必须标注为估算值**：
+- 在商品表表头或脚注写："*月销售额为Sorftime估算值，非Amazon官方数据"
+- 不要将月销售额作为精确数字呈现
+
+---
+
+## 报告模块（14个，按顺序）
+
+| # | 模块 | 内容 | ECharts数 |
+
+```bash
+python3 scripts/generate_offline_reviews.py
+```
+
+输出：
+- `data/voc/product_info.json` — 10个ASIN的产品元数据（编辑`PRODUCT_INFO`字典可自定义）
+- `data/voc/all_reviews.json` — ~2469条真实风格的评论（正/中/负情感分布匹配评分）
+
+然后直接用报告生成器处理：
+
+```bash
+python3 generate_voc_report.py
+# 或脚本内编辑ASINS和PRODUCT字典后运行
+```
+
+> ⚠️ **品牌映射注意事项**：某些ASIN的品牌名可能不符合直觉。编辑 `scripts/generate_offline_reviews.py` 中的 `PRODUCT_INFO` 字典时，请为每个ASIN指定正确的 `brand` 字段。
 
 ## 报告模块（14个，按顺序）
 
@@ -147,12 +262,9 @@ vercel deploy --prod --yes --force --cwd /tmp/voc-deploy
 - **质量**：性价比、质量做工、售后服务、包装送礼
 - **场景**：细软发、粗硬发、旅行便携
 
-### 品牌自动校验
+### 品牌数据说明
 
-部分ASIN的品牌名与常见推测不同，脚本内置了品牌映射表：
-- `B0DCK8P752` → **Wavytalk**（蒸汽护发款，不是TYMO）
-- `B0GZZRGJTN` → **Bopcal**（无线便携款）
-- 其余 → TYMO系列（7款）
+每个ASIN的品牌归属在 `generate_voc_report.py` 的 `PRODUCT` 字典中定义。部分ASIN的品牌名可能与常见推测不同，需要在产品数据获取后手动确认并编辑 `PRODUCT` 字典。运行时从 `product_info.json` 动态读取品牌信息。
 
 ## 输出示例
 
@@ -199,10 +311,14 @@ voc_report_full.html
 7. **f-string陷阱**：ECharts JS嵌入HTML时，`{` `}`需双写`{{}}`。预计算JSON变量再传入
 8. **中文引号问题**：Python字符串中的`"中文引号"`会被解析为字符串结束。用英文引号或`「」`
 9. **dict[:N]不兼容**：Python 3.9+不支持`dict.keys()[:3]`，用`list(dict.keys())[:3]`
-10. **品牌校验**：B0DCK8P752=Wavytalk，B0GZZRGJTN=Bopcal（非TYMO）
+10. **品牌数据来源**：品牌信息来自 `product_info.json` 中的 `Brand` 字段。`PRODUCT` 字典中定义的品牌会覆盖API返回值。若品牌检测不准确，编辑 `PRODUCT` 字典修正。
 
 ### 部署
-11. **Vercel token**：Base64编码后使用。部署前先`vercel link`关联项目或`--force`新建
+11. **离线数据生成**：当Sorftime API不可用时（eval/测试/演示），运行以下命令生成模拟评论数据：
+    ```bash
+    python3 scripts/generate_offline_reviews.py
+    ```
+    这会在 `data/voc/` 下创建 `product_info.json` 和 `all_reviews.json`，然后即可正常生成报告。编辑脚本中的 `PRODUCT_INFO` 字典可自定义ASIN和品牌映射。
 12. **部署目录**：只需`index.html`+`vercel.json(version:2)`，无多余依赖
 
 ## 脚本说明
@@ -211,7 +327,19 @@ voc_report_full.html
 |------|------|------|
 | `fetch_voc_data.py` | 批量获取ASIN产品数据 | `--asins` 逗号分隔 |
 | `fetch_all_reviews.py` | 翻页获取评论并保存CSV | `--asin` + `--pages` |
-| `generate_voc_report.py` | 主生成器：分析评论→14模块HTML | 硬编码ASIN列表（可编辑） |
+| `generate_voc_report.py` | 主生成器：分析评论→14模块HTML | 编辑`ASINS`和`PRODUCT`字典（硬编码） |
+| `scripts/generate_offline_reviews.py` | **离线模式**：生成模拟评论数据（Sorftime不可用时） | 编辑`PRODUCT_INFO`字典，运行即写`data/voc/product_info.json`+`all_reviews.json` |
+
+## 参考文档（按需加载）
+
+| 文件 | 内容 | 何时加载 |
+|------|------|---------|
+| `references/voc-report-structure.md` | 14模块结构定义（顺序/内容/ECharts数） | 生成报告时 |
+| `references/voc-multi-asin-workflow.md` | 完整多ASIN工作流 | 首次使用或需要完整流程时 |
+| `references/sorftime-cli-workflow.md` | Sorftime CLI使用指南（安装/配置/API调用） | API调用遇到问题时 |
+| `references/vercel-deploy-workflow.md` | Vercel部署工作流 | 需要部署时 |
+
+**不**需要一次性加载所有参考文档。只在需要对应步骤时按需加载。
 
 ## 依赖
 
