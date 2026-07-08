@@ -1,0 +1,52 @@
+{
+  "skill_name": "voc-amz-products-analyzer",
+  "evals": [
+    {
+      "id": 1,
+      "name": "generate-voc-report-from-real-data",
+      "prompt": "我有10个直发梳竞品ASIN（B07MMQ4BZH, B0DCK8P752, B0BL34CGLM, B0FJDK6BMT, B0FT2PQY7R, B091KHSV2X, B07RLTPSLB, B0C2C9TC42, B0F3CXQVT3, B0GZZRGJTN），已经拉取好了产品数据和评论。产品数据在 /opt/data/skills/voc-amz-products-analyzer/data/voc/product_info.json，评论在 /opt/data/skills/voc-amz-products-analyzer/data/voc/all_reviews.json。请帮我生成一份完整的14模块品类洞察HTML报告，部署到Vercel预览。",
+      "expected_output": "完整的VOC品类洞察HTML报告，包含14模块：决策卡→数据说明→品类总览→AI总结→PSPS→ABSA→APPEALS→KANO→痛爽痒→用户旅程摩擦→逐品拆解→好差评横向对比→创新机会→侧边栏导航。数据必须真实（从JSON文件读取，不能虚构）。",
+      "files": [
+        "/opt/data/skills/voc-amz-products-analyzer/data/voc/product_info.json",
+        "/opt/data/skills/voc-amz-products-analyzer/data/voc/all_reviews.json"
+      ],
+      "expectations": [
+        "报告使用羊皮纸暖色主题",
+        "包含至少5个ECharts图表",
+        "数据来源是真实JSON文件，不是虚构",
+        "每个ASIN有价格/评分/评论量/月销4项KPI",
+        "包含中英文双语评论（英文原文+中文翻译）",
+        "报告尾部有'分析负责人：郑佳'署名"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "fetch-data-for-new-asins",
+      "prompt": "我想分析亚马逊宠物梳毛手套品类的竞争情况，帮我看3个ASIN：B09H4J3QN3, B0B5G8W41H, B08D3W5KJ7。请指导我如何使用Sorftime API拉取这些ASIN的产品数据和评论，然后生成VOC分析报告。",
+      "expected_output": "清晰的工作流指导：安装sorftime-cli → 配置账号 → 用ProductRequest获取产品数据 → 用ProductReviewsQuery获取评论 → 编写PRODUCT字典 → 运行generate_voc_report.py → 部署Vercel。指导应包含具体的sorftime api命令示例和注意事项。",
+      "files": [],
+      "expectations": [
+        "使用sorftime api ProductRequest获取产品数据",
+        "使用sorftime api ProductReviewsQuery获取评论",
+        "包含asin参数必须是字符串的注意事项",
+        "包含翻页限制说明（最多300条/ASIN）",
+        "包含编辑ASINS列表的步骤",
+        "包含生成报告后部署Vercel的选项"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "error-recovery-bad-asin",
+      "prompt": "我试了用Sorftime API拉数据但返回Code 10错误。我的命令是：sorftime api ProductRequest '{\"asinList\": [\"B07MMQ4BZH\"]}' --domain 1。同时我也给了错误的account-sk。怎么修复？",
+      "expected_output": "诊断错误原因：①ProductRequest参数名是'asin'不是'asinList'（Code 10 = 参数错误）→ 修复为asin字符串格式；②account-sk配置问题 → 用sorftime add default <正确sk>重新配置。给出修复后的完整命令示例。",
+      "files": [],
+      "expectations": [
+        "指出Code 10错误是因为用了asinList而不是asin",
+        "指出参数应该是逗号分隔的字符串，不是数组",
+        "指出account-sk配置问题并给出修复命令",
+        "给出修复后的正确命令示例",
+        "包含sorftime add和sorftime use命令"
+      ]
+    }
+  ]
+}

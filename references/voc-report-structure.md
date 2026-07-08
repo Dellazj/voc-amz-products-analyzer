@@ -78,10 +78,12 @@ body{background:linear-gradient(165deg,#d9ccb7,#e9dcc9,#d6c7b2);
 ## 关键陷阱
 
 1. **子代理数据污染**：没有API权限时子代理会虚构价格/评分等数据
-2. **品牌校验**：B0DCK8P752=Wavytalk（非TYMO），B0GZZRGJTN=Bopcal
+2. **品牌校验**：B0FCS7NZ35=FEELSO（非FORIOUS）
 3. **f-string陷阱**：预计算JSON变量再引用，不在f-string内嵌json.dumps()
-4. **中文引号问题**：`"xxx"`在Python字符串中导致SyntaxError，用英文引号或「」
+4. **中文引号问题**：`"xxx"`（U+201C/U+201D）在Python字符串中被解析为字符串结束，用英文引号或「」
 5. **dict[:N]问题**：Python3.9+不适用，用`list(dict.keys())[:N]`
+6. **输出路径偏移**：当脚本在子目录（如`data/voc/`）中时，`__file__`的相对`dirname`层级计算容易出错，导致HTML被写入 `data/data/voc/` 而非 `data/voc/`。先`print(__file__)`确认位置再算路径。
+7. **旧品类脚本污染**：直发梳脚本的ASINS/PRODUCT/TOPIC_MAP/EN_CN_MAP与厨房水龙头完全不同，强行修改比重写更麻烦。
 
 ## 生成后自检清单
 

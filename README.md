@@ -11,15 +11,15 @@
 
 - 14个分析模块（从决策卡到创新机会）
 - 20+ ECharts可视化图表（柱状图/饼图/雷达图/散点图等）
-- 2469+条评论自动情感分类+话题提取
+- 346条评论自动情感分类+话题提取
 - 逐品好差评精选 + 中文简译
 - 品类级创新机会 + 量化投入产出评估
 - 侧边栏导航 + 无缝Vercel部署
 
-[👉 **查看示例报告**](https://voc-report-v7-deploy.vercel.app)
+[👉 **查看示例报告**](https://voc-deploy-cii9x23v4-dellazj-projects.vercel.app)
 
-> 示例报告是对Amazon US直发梳品类Top10 ASIN的VOC分析，
-> 覆盖TYMO、Wavytalk、Bopcal三个品牌共10款产品。
+> 示例报告是对Amazon US厨房水龙头品类4款ASIN的VOC分析，
+> 覆盖FEELSO、FORIOUS两个品牌共4款产品（Touch On Kitchen Sink Faucets）。
 
 ## 报告模块总览
 
@@ -68,15 +68,14 @@ uv pip install -r requirements.txt
 
 ```bash
 python3 fetch_voc_data.py \
-  --asins B07MMQ4BZH,B0DCK8P752,B0BL34CGLM,B0FJDK6BMT,B091KHSV2X,\
-B07RLTPSLB,B0C2C9TC42,B0F3CXQVT3,B0GZZRGJTN,B0FT2PQY7R
+  --asins B0FCS7NZ35,B0FC2NCYSL,B0DCYJSL3H,B0CN362S8M
 ```
 
 #### 2️⃣ 获取评论数据（翻页，每ASIN最多300条）
 
 ```bash
 # 单个ASIN
-python3 fetch_all_reviews.py --asin B07MMQ4BZH --pages 3
+python3 fetch_all_reviews.py --asin B0FCS7NZ35 --pages 3
 
 # 或批量使用fetch_voc_data.py（包含评论拉取）
 ```
@@ -126,17 +125,17 @@ vercel deploy --prod --yes --force --cwd /tmp/voc-deploy
 编辑 `generate_voc_report.py` 中的 `ASINS` 和 `PRODUCT` 字典：
 
 ```python
-ASINS = ["B07MMQ4BZH","B0DCK8P752"]  # 你的竞品ASIN列表
+ASINS = ["B0FCS7NZ35","B0FC2NCYSL","B0DCYJSL3H","B0CN362S8M"]  # 你的竞品ASIN列表
 
 PRODUCT = {
-    "B07MMQ4BZH": {
-        "brand": "TYMO",
-        "title": "Ring Hair Straightening Brush",
-        "price": 39.85,
-        "rating": 4.4,
-        "reviews": 83592,
-        "sales": 7000,
-        "seller": "TYMO US"
+    "B0FCS7NZ35": {
+        "brand": "FEELSO",
+        "title": "Kitchen Faucet with Pull Down Sprayer",
+        "price": 26.99,
+        "rating": 4.5,
+        "reviews": 444,
+        "sales": 3000,
+        "seller": "FEELSO"
     },
     # ... 更多ASIN
 }
@@ -146,8 +145,7 @@ PRODUCT = {
 
 ```python
 BRAND_CHECK = {
-    "B0DCK8P752": "Wavytalk",  # 非TYMO
-    "B0GZZRGJTN": "Bopcal",    # 非TYMO
+    "B0FCS7NZ35": "FEELSO",  # 非FORIOUS
 }
 ```
 
@@ -157,9 +155,14 @@ BRAND_CHECK = {
 
 ```python
 TOPIC_MAP = {
-    "straighten|straight": "直发效果",
-    "curl|curling|wave": "卷发造型",
-    "frizz|anti.*frizz": "抗毛躁",
+    "install|mount|setup|easy": "安装便捷",
+    "finish|stainless|matte|coating|spot": "表面处理/耐污",
+    "pull.?down|sprayer|spray|detach|retract|nozzle": "下拉喷头",
+    "water|pressure|flow|stream": "水压水流",
+    "leak|drip|loose": "防漏密封",
+    "quality|sturdy|solid|plastic|metal|build": "质量做工",
+    "design|look|modern|vintage|style|classic": "外观设计",
+    "value|price|cost|cheap|expensive|worth": "性价比",
     # 添加你自己的话题规则
 }
 ```

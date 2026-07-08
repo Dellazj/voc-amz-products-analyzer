@@ -18,7 +18,7 @@ BASE = os.path.join(os.path.dirname(os.path.abspath(__file__)), DATA_DIR)
 # =============================================
 # List your target ASINs below
 ASINS = [
-    # Example: "B07MMQ4BZH", "B0DCK8P752", ...
+    # Example: "B0FCS7NZ35", "B0FC2NCYSL", ...
 ]
 
 # Product metadata dictionary (use Sorftime ProductRequest to fill)

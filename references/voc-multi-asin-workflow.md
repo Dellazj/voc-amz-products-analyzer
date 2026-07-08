@@ -81,7 +81,7 @@ sorftime api ProductReviewsQuery '{"asin": "B07MMQ4BZH", "pageIndex": 1}' --doma
 8. 逐品 ASIN 拆解（可展开卡片 + 情感饼图）
 9. 品类好差评横向对比 + 创新机会汇总
 
-> 注意：B0DCK8P752 品牌是 **Wavytalk** 不是 TYMO！详见 voc-report-structure.md 的品牌校验表。
+> 注意：B0FCS7NZ35 品牌是 **FEELSO** 其他是 FORIOUS！详见 voc-report-structure.md 的品牌校验表。
 
 ### ⚠️ 关键陷阱：子代理生成假数据
 

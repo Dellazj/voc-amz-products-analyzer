@@ -1,6 +1,6 @@
 ---
 name: voc-amz-products-analyzer
-version: 1.1.0
+version: 1.2.0
 author: Della Zheng (based on review-analyzer-skill by @buluslan)
 description: |
   Amazon品类VOC（Voice of Customer）评论分析工具。
@@ -14,6 +14,9 @@ description: |
   - 用户遇到了Sorftime API错误（Code 10等）
   - 用户问如何从亚马逊拉取评论数据做分析
   - 凡是涉及亚马逊选品、竞品分析、评论分析、品类调研，即使没明确说VOC，也应该加载此Skill
+  - 用户给出多个ASIN让你做「竞争格局定位」分析（定位/散布/泡泡图）
+  - 用户说「帮我看看这个品类怎么样」
+  - 用户要求对现有品类报告做增量更新（修复JS错误、数据不匹配、缺失图表）
 
   核心能力：
   - Sorftime API批量获取产品元数据和评论（支持翻页300条/ASIN）
@@ -35,10 +38,6 @@ allowed-tools:
 
 > **Amazon 品类 VOC 评论分析工具** — 输入3~10个竞品ASIN，自动生成14模块品类洞察HTML报告。
 
-生成示例：![VOC Report Preview](https://voc-report-v7-deploy.vercel.app)
-
-（实际为羊皮纸暖色风格ECharts报告，包含14个分析模块、20+可视化图表）
-
 ## 快速开始
 
 ### 方式1：作为Hermes Agent Skill使用
@@ -58,9 +57,9 @@ git clone https://github.com/dellazj/voc-amz-products-analyzer.git
 cd voc-amz-products-analyzer
 uv venv .venv && source .venv/bin/activate
 uv pip install -r requirements.txt
+```
 
-
-## 🚨 数据准确性 — 不可妥协的规则
+## 数据准确性 — 不可妥协的规则
 
 **这是使用本Skill最重要的规则。违反以下任何一条将导致报告包含虚假数据。**
 
@@ -95,7 +94,7 @@ uv pip install -r requirements.txt
 
 5. **ASIN独立过滤**：ProductReviewsQuery返回的数据中会混入变体ASIN的评论。在分析时**只保留当前ASIN的评论**（用`Asin`字段过滤），不要混入变体评论。
 
-### 发布前清理清单 🚨
+### 发布前清理清单
 
 将Skill发布到GitHub或公开分享前，必须：
 
@@ -109,7 +108,7 @@ uv pip install -r requirements.txt
 
 ## 工作流
 
-### 第一步：安装Sorftime CLI（获取数据必需）
+### 第一步：安装Sorftime CLI
 
 ```bash
 npm install -g sorftime-cli
@@ -122,11 +121,10 @@ sorftime use default
 
 ```bash
 # 批量获取3~10个竞品ASIN的产品数据
-# 将下面的ASIN列表替换为你的目标ASIN
 sorftime api ProductRequest '{"asin": "ASIN1,ASIN2,ASIN3,...", "trend": 2}' --domain 1
 ```
 
-> ⚠️ **关键**：`ProductRequest` 参数名是 `asin`（逗号分隔字符串），**不是** `asinList`（数组）。用错了返回Code 10错误。
+> **关键**：`ProductRequest` 参数名是 `asin`（逗号分隔字符串），**不是** `asinList`（数组）。用错了返回Code 10错误。
 
 ### 第三步：获取评论数据
 
@@ -135,15 +133,16 @@ sorftime api ProductRequest '{"asin": "ASIN1,ASIN2,ASIN3,...", "trend": 2}' --do
 ```bash
 sorftime api ProductReviewsQuery '{"asin": "YOUR_ASIN", "pageIndex": 1}' --domain 1
 ```
-> 注意：每100条/页，variant ASINs的评论会混入返回结果中。
 
-使用批处理脚本（先编辑 `fetch_voc_data.py` 中的 ASINS 列表）：
-
-```bash
-python3 fetch_voc_data.py
-```
+> **关键：终端输出截断**：ProductReviewsQuery响应可能超过65KB，`terminal()`默认截断50KB导致JSON解析失败。必须重定向到文件再读取：
+> ```bash
+> sorftime api ProductReviewsQuery '{"asin": "ASIN1", "pageIndex": 1}' --domain 1 > /tmp/reviews_ASIN1_p1.json
+> ```
+> 然后用 `json.loads(strict=False)` 解析（评论内容包含控制字符，strict模式会报错）。
 
 ### 第四步：生成VOC品类分析报告
+
+**首选**：使用已有的品类报告生成器：
 
 ```bash
 python3 generate_voc_report.py
@@ -151,28 +150,28 @@ python3 generate_voc_report.py
 
 输出文件：`data/voc/voc_report_full.html`
 
-### 第五步：部署到Vercel（可选）
-
-```bash
-# 1. 创建部署目录
-mkdir -p /tmp/voc-deploy
-cp data/voc/voc_report_full.html /tmp/voc-deploy/index.html
-echo '{"version":2}' > /tmp/voc-deploy/vercel.json
-
-# 2. 部署（需配置Vercel token）
-vercel deploy --prod --yes --force --cwd /tmp/voc-deploy
-```
-
----
+**备选（推荐给新品类）**：如果现有脚本是针对完全不同的品类（话题映射TOPIC_MAP、产品数据PRODUCT字典都不匹配），不要强行修改——直接编写品类专属的独立报告脚本。
 
 ## 报告生成规范
 
-### 署名（必须！）
+### Footer（数据来源标注）
 
-**生成报告前，先询问用户**："报告底部需要署名吗？如果需要，请提供署名文字（如'分析负责人：XXX'）。如果不需要，底部留空。"
+报告底部的footer格式**严格遵循以下规范**：
 
-- 如果用户提供了署名文字 → 放在报告尾部
-- 如果用户说不需要或没有要求 → 底部留空，不加任何署名
+```html
+<footer>数据来源：Sorftime ProductRequest</footer>
+```
+
+- ❌ **不加**「分析工具：Hermes Agent」
+- ❌ **不加**署名（除非用户明确要求，见下方署名规则）
+- ✅ footer必须在`.page`div外部（作为body直接子元素），否则可能因父级flex/grid布局跑偏
+- ✅ CSS确保`text-align:center; display:block; width:100%`
+
+### 署名规则
+
+- 生成报告前**必须询问用户**：「报告底部需要署名吗？如果需要请提供署名文字。如果不需要，底部留空。」
+- 用户提供了署名文字 → 在报告尾部单独一行（不在footer内）
+- 用户说不需要 → 不留任何署名
 
 ### 主题风格
 
@@ -186,41 +185,11 @@ vercel deploy --prod --yes --force --cwd /tmp/voc-deploy
 - **字体**：系统无衬线（`-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`）
 - **侧边栏导航**：右侧悬浮，hover展开，14个锚点
 
-### 数据来源标注
-
-在每个图表下方或报告开头的数据说明模块中，标注数据来源：
-- "数据来源：Sorftime API（产品数据 + 评论数据）"
-- "评论抓取时间：YYYY-MM-DD"
-- "分析ASIN数量：N个"
-
 ### 月销售额标注
 
 报告中显示的月销售额（monthly sales / 月销）**必须标注为估算值**：
 - 在商品表表头或脚注写："*月销售额为Sorftime估算值，非Amazon官方数据"
 - 不要将月销售额作为精确数字呈现
-
----
-
-## 报告模块（14个，按顺序）
-
-| # | 模块 | 内容 | ECharts数 |
-
-```bash
-python3 scripts/generate_offline_reviews.py
-```
-
-输出：
-- `data/voc/product_info.json` — 10个ASIN的产品元数据（编辑`PRODUCT_INFO`字典可自定义）
-- `data/voc/all_reviews.json` — ~2469条真实风格的评论（正/中/负情感分布匹配评分）
-
-然后直接用报告生成器处理：
-
-```bash
-python3 generate_voc_report.py
-# 或脚本内编辑ASINS和PRODUCT字典后运行
-```
-
-> ⚠️ **品牌映射注意事项**：某些ASIN的品牌名可能不符合直觉。编辑 `scripts/generate_offline_reviews.py` 中的 `PRODUCT_INFO` 字典时，请为每个ASIN指定正确的 `brand` 字段。
 
 ## 报告模块（14个，按顺序）
 
@@ -232,94 +201,78 @@ python3 generate_voc_report.py
 | 3 | **品类总体分析总结** | AI驱动的4段分析：竞争格局/健康度/情感/入局建议 | 0 |
 | 4 | **PSPS用户画像** | Persona×Scenario×Pain三列各5项+% | 0 |
 | 5 | **ABSA方面级情感** | TOP8话题柱状图+TOP4雷达+话题表格 | 2 |
-| 6 | **$APPEALS竞争力** | 10款×8维雷达图(功能/易用/安全/品质/性价比/便携/品牌/售后) | 1 |
+| 6 | **$APPEALS竞争力** | 10款×8维雷达图 | 1 |
 | 7 | **KANO需求分类** | 基本/期望/魅力三栏+进度条+描述 | 0 |
 | 8 | **痛爽痒三维图谱** | 三列布局+进度条+提及率%+详细描述 | 0 |
 | 9 | **用户旅程摩擦** | 8阶段雷达(1-10分)+详解卡片+场景+改进建议 | 1 |
-| 10 | **逐品ASIN拆解** | 10折叠卡×(KPI+环形饼图+话题柱+好差评各5条含翻译+创新机会) | 20 |
+| 10 | **逐品ASIN拆解** | N折叠卡×(KPI+环形饼图+话题柱+好差评各5条含翻译+创新机会) | N×2 |
 | 11 | **好差评横向对比** | 好评/差评维度表(覆盖ASIN+进度条+原声)+定位评价卡 | 0 |
 | 12 | **品类创新机会汇总** | 立刻能做+短期突破+长期布局+入局策略+量化投入产出表 | 0 |
-| 13 | **侧边栏导航** | 右侧悬浮导航杆(hover展开14锚点) | 0 |
-
-## 关键功能说明
-
-### 情感分类算法
-
-```
-星级 ≥ 4 + 负面关键词 < 4 → 正向
-星级 ≤ 2 + 正面关键词 < 3 → 负向
-星级 = 3 或 冲突关键词 → 中立
-```
-
-### 话题提取（30+维度）
-
-通过正则匹配评论内容，自动归类到以下话题：
-- **核心功能**：直发效果、抗毛躁、卷发造型、光泽顺滑
-- **性能**：速热性能、温控调节、噪音控制、持久定型
-- **安全**：防烫安全、自动关机、断发拉扯
-- **设计**：便携便携、设计手感、颜色外观
-- **技术**：负离子、涂层技术、蒸汽护发
-- **质量**：性价比、质量做工、售后服务、包装送礼
-- **场景**：细软发、粗硬发、旅行便携
-
-### 品牌数据说明
-
-每个ASIN的品牌归属在 `generate_voc_report.py` 的 `PRODUCT` 字典中定义。部分ASIN的品牌名可能与常见推测不同，需要在产品数据获取后手动确认并编辑 `PRODUCT` 字典。运行时从 `product_info.json` 动态读取品牌信息。
-
-## 输出示例
-
-生成后的HTML报告结构（羊皮纸暖色主题）：
-
-```
-voc_report_full.html
-├── 📋 一页决策卡
-├── 📋 数据说明
-├── 📊 品类总览 Dashboard
-│   ├── 4KPI卡片（总评论/ASIN数/均价/均分）
-│   ├── 价格柱状图（10ASIN）
-│   └── 情感饼图
-├── 🧠 品类总体分析总结
-├── 👤 PSPS用户画像
-├── 📐 ABSA方面级情感
-├── 💎 $APPEALS竞争力
-├── 📈 KANO需求分类
-├── 🎯 痛·爽·痒三维图谱
-├── 🗺️ 用户旅程摩擦
-├── 📦 逐品ASIN拆解（10个折叠卡）
-│   ├── 5列KPI（价格/评分/评论量/月销/抓取数）
-│   ├── 环形情感饼图
-│   ├── 话题分布柱状图
-│   ├── 好评精选5条（含中文简译）
-│   ├── 差评精选5条（含中文简译）
-│   └── 🚀 产品创新机会
-├── 🏆 好差评横向对比+定位评价
-├── 🚀 品类创新机会汇总
-└── 📌 侧边栏导航
-```
+| 13 | **定位矩阵** | 评分×月销×评论量散点图 — **最常被遗漏的图表** | 1 |
+| 14 | **侧边栏导航** | 右侧悬浮导航杆(hover展开14锚点) | 0 |
 
 ## 关键陷阱 & 最佳实践
 
 ### 数据获取
 1. **ProductRequest参数名**：`asin`（字符串逗号分隔），不是`asinList`（数组）
 2. **翻页限制**：ProductReviewsQuery每页100条，最多3页=300条/ASIN
-3. **变体评论**：返回数据中混入变体ASIN评论，需用`Asin`字段过滤
-4. **月销字段**：`AsinSalesCount`可能是父体级别数据，变体级别可能为0
-5. **星级分布格式**：`FiveStartRatings`/`OneStarRatings`格式为`"X,XXX"`，需parse
+3. **大输出重定向**：评论输出超50KB会被terminal截断。**必须**：`> /tmp/reviews_{asin}.json` → `json.loads(strict=False)` 解析
+4. **变体评论**：返回数据中混入变体ASIN评论，需用`Asin`字段过滤
+5. **月销字段**：`AsinSalesCount`可能是父体级别数据，变体级别可能为0
+6. **星级分布格式**：`FiveStartRatings`/`OneStarRatings`格式为`"X,XXX"`，需parse
 
 ### 报告生成
-6. **子代理数据污染**：❗ 子代理没有API权限时会虚构价格/评分数据。始终在主进程拉取真实数据再传入
-7. **f-string陷阱**：ECharts JS嵌入HTML时，`{` `}`需双写`{{}}`。预计算JSON变量再传入
-8. **中文引号问题**：Python字符串中的`"中文引号"`会被解析为字符串结束。用英文引号或`「」`
-9. **dict[:N]不兼容**：Python 3.9+不支持`dict.keys()[:3]`，用`list(dict.keys())[:3]`
-10. **品牌数据来源**：品牌信息来自 `product_info.json` 中的 `Brand` 字段。`PRODUCT` 字典中定义的品牌会覆盖API返回值。若品牌检测不准确，编辑 `PRODUCT` 字典修正。
+7. **子代理数据污染**：❗ 子代理没有API权限时会虚构价格/评分数据。始终在主进程拉取真实数据再传入
+8. **f-string陷阱**：ECharts JS嵌入HTML时，`{` `}`需双写`{{}}`。预计算JSON变量再传入
+9. **中文引号问题**：Python字符串中的"中文引号"会被解析为字符串结束。用英文引号或「」
+10. **dict[:N]不兼容**：Python 3.9+不支持`dict.keys()[:3]`，用`list(dict.keys())[:3]`
+11. **品牌数据来源**：品牌信息来自 `product_info.json` 中的 `Brand` 字段
 
-### 部署
-11. **离线数据生成**：当Sorftime API不可用时（eval/测试/演示），运行以下命令生成模拟评论数据：
-    ```bash
-    python3 scripts/generate_offline_reviews.py
-    ```
-    这会在 `data/voc/` 下创建 `product_info.json` 和 `all_reviews.json`，然后即可正常生成报告。编辑脚本中的 `PRODUCT_INFO` 字典可自定义ASIN和品牌映射。
-12. **部署目录**：只需`index.html`+`vercel.json(version:2)`，无多余依赖
+### 部署前验收清单（必做）
+
+子代理生成的HTML**几乎每次都有问题**。生成报告后部署前必须验证：
+
+```bash
+# 1. JS语法错误：Python True/False/None 混入JS
+grep -n 'show:True\|show:False\|None\b' data/voc/voc_report_full.html
+
+# 2. 定位矩阵散点图（最常遗漏）
+grep 'document.getElementById("positioning")' data/voc/voc_report_full.html || echo "MISSING"
+
+# 3. 无重复init（同一个div被init两次）
+grep -c 'document.getElementById("positioning")' data/voc/voc_report_full.html
+# 如果>1，说明有重复脚本——删除较早的那份
+
+# 4. HTML结构完整性——section嵌套是否正确
+# patch操作可能误删id="sec-compare-reviews"导致关联内容丢失section样式
+grep 'id="sec-compare-reviews"' data/voc/voc_report_full.html
+
+# 5. footer格式
+grep '<footer>' data/voc/voc_report_full.html
+
+# 6. 图表script必须在对应div之后（DOM顺序）
+# 特别是positioning散点图——如果script在div之前，ECharts渲染到不存在元素
+```
+
+### 定位矩阵散点图快速修复
+
+当定位矩阵（评分×月销×评论量）图表为空时，原因通常是JS缺失。最小化修复：
+
+```python
+# 在最后一个<script>块末尾追加：
+echarts.init(document.getElementById("positioning")).setOption({
+  xAxis:{type:"value",name:"月销"},
+  yAxis:{type:"value",name:"评分",min:4.3,max:4.7},
+  series:[{type:"scatter",
+    data:[[月销, 评分, 评论量], ...],
+    label:{show:true}
+  }]
+});
+```
+
+注意：
+- `\n` 要用双反斜杠 `\\n`（JSON字符串中表示换行）
+- 如果已经有 `show:True`（Python写法），替换为 `show:true`
 
 ## 脚本说明
 
@@ -327,25 +280,18 @@ voc_report_full.html
 |------|------|------|
 | `fetch_voc_data.py` | 批量获取ASIN产品数据 | `--asins` 逗号分隔 |
 | `fetch_all_reviews.py` | 翻页获取评论并保存CSV | `--asin` + `--pages` |
-| `generate_voc_report.py` | 主生成器：分析评论→14模块HTML | 编辑`ASINS`和`PRODUCT`字典（硬编码） |
-| `scripts/generate_offline_reviews.py` | **离线模式**：生成模拟评论数据（Sorftime不可用时） | 编辑`PRODUCT_INFO`字典，运行即写`data/voc/product_info.json`+`all_reviews.json` |
+| `generate_voc_report.py` | 主生成器：分析评论→14模块HTML | 编辑`ASINS`和`PRODUCT`字典 |
+| `scripts/generate_offline_reviews.py` | 离线模式：生成模拟评论数据 | 编辑`PRODUCT_INFO`字典 |
 
 ## 参考文档（按需加载）
 
 | 文件 | 内容 | 何时加载 |
 |------|------|---------|
-| `references/voc-report-structure.md` | 14模块结构定义（顺序/内容/ECharts数） | 生成报告时 |
+| `references/voc-report-structure.md` | 14模块结构定义 | 生成报告时 |
 | `references/voc-multi-asin-workflow.md` | 完整多ASIN工作流 | 首次使用或需要完整流程时 |
-| `references/sorftime-cli-workflow.md` | Sorftime CLI使用指南（安装/配置/API调用） | API调用遇到问题时 |
+| `references/sorftime-cli-workflow.md` | Sorftime CLI使用指南 | API调用遇到问题时 |
 | `references/vercel-deploy-workflow.md` | Vercel部署工作流 | 需要部署时 |
-
-**不**需要一次性加载所有参考文档。只在需要对应步骤时按需加载。
-
-## 依赖
-
-- Python 3.10+
-- `sorftime-cli` (npm) — 数据源
-- requests / pandas / numpy / jinja2 / python-dotenv / tqdm
+| `references/report-writing-guide.md` | 独立报告编写指南 + 部署前验证清单 | 旧品类脚本不匹配需编写新品类独立报告时 |
 
 ## License
 
