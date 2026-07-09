@@ -71,13 +71,23 @@ python3 fetch_voc_data.py \
   --asins B0FCS7NZ35,B0FC2NCYSL,B0DCYJSL3H,B0CN362S8M
 ```
 
-#### 2️⃣ 获取评论数据（翻页，每ASIN最多300条）
+#### 2️⃣ 获取评论数据（翻页，自动过滤变体评论）
 
 ```bash
-# 单个ASIN
-python3 fetch_all_reviews.py --asin B0FCS7NZ35 --pages 3
+# 标准分析：300条/ASIN（推荐）
+python3 fetch_all_reviews.py --asins B0FCS7NZ35,B0FC2NCYSL,B0DCYJSL3H,B0CN362S8M --max-per-asin 300
 
-# 或批量使用fetch_voc_data.py（包含评论拉取）
+# 快速预览：100条/ASIN
+python3 fetch_all_reviews.py --asins B0FCS7NZ35 --max-per-asin 100
+
+# 深入分析：500条/ASIN
+python3 fetch_all_reviews.py --asins B0FCS7NZ35 --max-per-asin 500 --pages 5
+
+# 全部拉取（不限量）
+python3 fetch_all_reviews.py --asins B0FCS7NZ35 --max-per-asin 0
+
+# 或单个ASIN手动指定
+python3 fetch_all_reviews.py --asins B0FCS7NZ35
 ```
 
 #### 3️⃣ 生成VOC品类报告
@@ -104,7 +114,8 @@ vercel deploy --prod --yes --force --cwd /tmp/voc-deploy
 | 数据类型 | API | 输出 |
 |---------|-----|------|
 | 产品元数据 | `ProductRequest` | 品牌/价格/评分/评论量/月销/BSR等 |
-| 评论数据 | `ProductReviewsQuery` | 评论正文/星级/标题/日期/变体信息 |
+| 评论数据 | `ProductReviewsQuery` | 评论正文/星级/标题/日期/变体信息（自动过滤变体） |
+| 评论量控制 | `--max-per-asin 100/300/500/0` | 快速/标准/深入/全部 |
 
 ### 关键参数
 
