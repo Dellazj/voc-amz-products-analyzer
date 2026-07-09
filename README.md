@@ -242,6 +242,5 @@ MIT — 自由使用和修改。
 
 ## 致谢
 
-- 原始电商评论分析引擎 [review-analyzer-skill](https://github.com/buluslan/review-analyzer-skill) 由 @buluslan 开发
 - 数据支持：Sorftime API（亚马逊第三方数据服务）
 - 图表渲染：Apache ECharts 5

@@ -1,7 +1,7 @@
 ---
 name: voc-amz-products-analyzer
 version: 1.3.0
-author: Della Zheng (based on review-analyzer-skill by @buluslan)
+author: Della Zheng
 description: |
   Amazon品类VOC（Voice of Customer）评论分析工具。
   从Sorftime API获取3~10个竞品ASIN的产品数据和评论，
@@ -390,6 +390,5 @@ MIT
 
 ## 致谢
 
-- 原始电商评论分析引擎 [review-analyzer-skill](https://github.com/buluslan/review-analyzer-skill) by @buluslan
 - 数据支持：Sorftime API
 - 图表渲染：ECharts 5
